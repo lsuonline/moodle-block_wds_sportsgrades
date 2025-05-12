@@ -119,9 +119,7 @@ class block_sportsgrades extends block_base {
 
         // Hardcoded access for now as requested
         $allowed_users = [
-            'admin',  // Site admin
-            'sportadmin',  // Sports admin
-            'coachuser',  // Coach user
+            'rrusso33',
             // Add more users as needed
         ];
 
