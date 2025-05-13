@@ -82,7 +82,7 @@ if ($data = $search_form->get_data()) {
         $tabledata = [];
         foreach ($results['results'] as $student) {
             $row = new stdClass();
-            $row->id = $student->id;
+            $row->id = $student->studentid;
             $row->username = $student->username;
             $row->universal_id = $student->universal_id;
             $row->firstname = $student->firstname;

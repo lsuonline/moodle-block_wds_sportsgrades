@@ -35,11 +35,14 @@ class search {
     /**
      * Search for student athletes based on criteria
      * 
-     * @param array $params Search parameters
+     * @param array $parms Search parameters
      * @return array Search results
      */
-    public static function search_students($params) {
+    public static function search_students($parms) {
         global $DB, $USER;
+
+        // Let's work with arrays.
+        $parms = json_decode(json_encode($parms), true);
         
         // Check if user has access to any sports or specific students
         $access = self::get_user_access($USER->id);
@@ -49,108 +52,136 @@ class search {
         }
         
         // Build the SQL query
-        $sql_select = "SELECT DISTINCT u.id, u.username, u.firstname, u.lastname, 
-                      u.email, p.universal_id, p.college, p.major, p.classification";
+        $sqlselect = "SELECT sm.id AS stumetaid,
+            u.id AS userid,
+            stu.id AS studentid,
+            u.username,
+            u.firstname,
+            u.lastname,
+            u.email,
+            stu.universal_id,
+            p.sport,
+            p.college,
+            p.major,
+            p.classification,
+            p.period";
         
-        $sql_from = " FROM {user} u 
-                    JOIN {enrol_wds_students_meta} sm ON sm.studentid = u.id AND sm.datatype = 'Athletic_Team_ID'
-                    LEFT JOIN (
-                        SELECT 
-                            userid,
-                            MAX(CASE WHEN datatype = 'universal_id' THEN data ELSE NULL END) AS universal_id,
-                            MAX(CASE WHEN datatype = 'college' THEN data ELSE NULL END) AS college,
-                            MAX(CASE WHEN datatype = 'major' THEN data ELSE NULL END) AS major,
-                            MAX(CASE WHEN datatype = 'classification' THEN data ELSE NULL END) AS classification
-                        FROM {enrol_wds_students_meta}
-                        GROUP BY userid
-                    ) p ON p.userid = u.id";
+        $sqlfrom = " FROM mdl_user u
+            INNER JOIN mdl_enrol_wds_students stu
+                ON u.id = stu.userid
+            INNER JOIN mdl_enrol_wds_students_meta sm
+                ON sm.studentid = stu.id
+            INNER JOIN (
+                SELECT stumeta.studentid,
+                    per.academic_period AS period,
+                    GROUP_CONCAT(CASE WHEN datatype = 'Athletic_Team_ID' THEN data ELSE NULL END) AS sport,
+                    GROUP_CONCAT(CASE WHEN datatype = 'Academic_Unit_Code' THEN data ELSE NULL END) AS college,
+                    GROUP_CONCAT(CASE WHEN datatype = 'Program_of_Study_Code' THEN data ELSE NULL END) AS major,
+                    GROUP_CONCAT(CASE WHEN datatype = 'Classification' THEN data ELSE NULL END) AS classification
+                FROM mdl_enrol_wds_students_meta stumeta
+                INNER JOIN mdl_enrol_wds_periods per ON per.academic_period_id = stumeta.academic_period_id
+                WHERE per.start_date - 60 * 86400 < UNIX_TIMESTAMP()
+                    AND per.end_date > UNIX_TIMESTAMP()
+                GROUP BY stumeta.studentid, per.academic_period
+                    ) p ON p.studentid = stu.id";
         
         $conditions = [];
-        $params_sql = [];
+        $parmssql = [];
         
         // Filter by access permissions
         if (!empty($access['sports']) && !$access['all_students']) {
-            $sport_placeholders = [];
+            $sportplaceholders = [];
             $i = 0;
-            foreach ($access['sports'] as $sport_code) {
-                $param_name = 'sport' . $i;
-                $sport_placeholders[] = ':' . $param_name;
-                $params_sql[$param_name] = $sport_code;
+            foreach ($access['sports'] as $sportcode) {
+                $parmname = 'sport' . $i;
+                $sportplaceholders[] = ':' . $parmname;
+                $parmssql[$parmnme] = $sportcode;
                 $i++;
             }
-            $conditions[] = "sm.data IN (" . implode(',', $sport_placeholders) . ")";
+            $conditions[] = "sm.data IN (" . implode(',', $sportplaceholders) . ")";
         }
         
         if (!empty($access['student_ids']) && !$access['all_students']) {
-            $student_placeholders = [];
+            $studentplaceholders = [];
             $i = 0;
-            foreach ($access['student_ids'] as $student_id) {
-                $param_name = 'student' . $i;
-                $student_placeholders[] = ':' . $param_name;
-                $params_sql[$param_name] = $student_id;
+            foreach ($access['student_ids'] as $studentid) {
+                $parmname = 'student' . $i;
+                $studentplaceholders[] = ':' . $parmname;
+                $parmssql[$parmname] = $studentid;
                 $i++;
             }
             
             if (!empty($conditions)) {
-                $conditions[] = "OR u.id IN (" . implode(',', $student_placeholders) . ")";
+                $conditions[] = "OR u.id IN (" . implode(',', $studentplaceholders) . ")";
             } else {
-                $conditions[] = "u.id IN (" . implode(',', $student_placeholders) . ")";
+                $conditions[] = "u.id IN (" . implode(',', $studentplaceholders) . ")";
             }
         }
         
         // Apply search filters
-        if (!empty($params['universal_id'])) {
-            $conditions[] = "p.universal_id LIKE :universal_id";
-            $params_sql['universal_id'] = '%' . $params['universal_id'] . '%';
+        if (!empty($parms['universal_id'])) {
+            $conditions[] = "p.universal_id = :universal_id";
+            $parmssql['universal_id'] = '%' . $parms['universal_id'] . '%';
         }
         
-        if (!empty($params['username'])) {
+        if (!empty($parms['username'])) {
             $conditions[] = "u.username LIKE :username";
-            $params_sql['username'] = '%' . $params['username'] . '%';
+            $parmssql['username'] = '%' . $parms['username'] . '%';
         }
         
-        if (!empty($params['firstname'])) {
+        if (!empty($parms['firstname'])) {
             $conditions[] = "u.firstname LIKE :firstname";
-            $params_sql['firstname'] = '%' . $params['firstname'] . '%';
+            $parmssql['firstname'] = '%' . $parms['firstname'] . '%';
         }
         
-        if (!empty($params['lastname'])) {
+        if (!empty($parms['lastname'])) {
             $conditions[] = "u.lastname LIKE :lastname";
-            $params_sql['lastname'] = '%' . $params['lastname'] . '%';
+            $parmssql['lastname'] = '%' . $parms['lastname'] . '%';
         }
         
-        if (!empty($params['major'])) {
+        if (!empty($parms['major'])) {
             $conditions[] = "p.major LIKE :major";
-            $params_sql['major'] = '%' . $params['major'] . '%';
+            $parmssql['major'] = '%' . $parms['major'] . '%';
         }
         
-        if (!empty($params['classification'])) {
+        if (!empty($parms['classification'])) {
             $conditions[] = "p.classification = :classification";
-            $params_sql['classification'] = $params['classification'];
+            $parmssql['classification'] = $parms['classification'];
         }
         
-        if (!empty($params['sport'])) {
+        if (!empty($parms['sport'])) {
             $conditions[] = "sm.data = :sport";
-            $params_sql['sport'] = $params['sport'];
+            $parmssql['sport'] = $parms['sport'];
         }
         
         // Build the WHERE clause
-        $sql_where = !empty($conditions) ? " WHERE " . implode(' AND ', $conditions) : "";
+        $sqlwhere = !empty($conditions) ? " WHERE " . implode(' AND ', $conditions) : "";
         
         // Add ORDER BY clause to sort results
-        $sql_order = " ORDER BY u.lastname ASC, u.firstname ASC";
+        $sqlorder = " ORDER BY u.lastname ASC, u.firstname ASC";
         
         // Execute the query
-        $sql = $sql_select . $sql_from . $sql_where . $sql_order;
-        
+        $sql = $sqlselect . $sqlfrom . $sqlwhere . $sqlorder;
+
+/*
+echo"<pre>";
+var_dump($sql);
+var_dump($parmssql);
+echo"</pre>";
+*/        
         try {
-            $students = $DB->get_records_sql($sql, $params_sql);
+            $students = $DB->get_records_sql($sql, $parmssql);
+/*
+echo"<pre>";
+var_dump($students);
+echo"</pre>";
+*/
             
             // Process results to add sports information
             $results = [];
             foreach ($students as $student) {
                 // Get sports for each student
-                $sports = self::get_student_sports($student->id);
+                $sports = self::get_student_sports($student->studentid);
                 
                 $student->sports = $sports;
                 $results[] = $student;
