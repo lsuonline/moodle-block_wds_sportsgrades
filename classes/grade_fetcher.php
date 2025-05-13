@@ -66,14 +66,15 @@ class grade_fetcher {
         }
         
         // Get courses the student is enrolled in
-        $sql = "SELECT DISTINCT e.courseid, c.fullname, c.shortname, 
-                tca.name as term, c.startdate
-                FROM {enrol} e
-                JOIN {user_enrolments} ue ON ue.enrolid = e.id
-                JOIN {course} c ON c.id = e.courseid
-                LEFT JOIN {enrol_wds_course_meta} cm ON cm.courseid = c.id AND cm.datatype = 'term_code'
-                LEFT JOIN {enrol_wds_term_code_array} tca ON tca.code = cm.data
-                WHERE ue.userid = :studentid
+        $sql = "SELECT DISTINCT c.id AS courseid, stu.userid, c.fullname, c.shortname, 
+                sec.academic_period_id as term, sec.section_number, c.startdate
+                FROM {course} c
+                INNER JOIN {enrol_wds_sections} sec
+                    ON sec.moodle_status = c.id
+                INNER JOIN {enrol_wds_student_enroll} stuenr
+                    ON stuenr.section_listing_id = sec.section_listing_id
+                INNER JOIN {enrol_wds_students} stu ON stuenr.universal_id = stu.universal_id
+                WHERE stu.id = :studentid
                 ORDER BY c.startdate DESC, c.fullname ASC";
         
         $courses = $DB->get_records_sql($sql, ['studentid' => $studentid]);
@@ -87,20 +88,17 @@ class grade_fetcher {
             // Get final grade for the course
             $grade_info = grade_get_course_grade($studentid, $course->courseid);
             
-            // Get section information
-            $section = self::get_course_section($course->courseid);
-            
             $course_data = [
                 'id' => $course->courseid,
                 'fullname' => $course->fullname,
                 'shortname' => $course->shortname,
-                'section' => $section,
+                'section' => $course->section_number,
                 'term' => $course->term,
                 'startdate' => $course->startdate,
                 'final_grade' => !empty($grade_info) ? $grade_info->grade : null,
                 'final_grade_formatted' => !empty($grade_info) ? number_format($grade_info->grade, 2) : '-',
                 'letter_grade' => !empty($grade_info) ? self::get_letter_grade($grade_info->grade) : '-',
-                'grade_items' => self::get_grade_items($studentid, $course->courseid)
+                'grade_items' => self::get_grade_items($course->userid, $course->courseid)
             ];
             
             $results[] = $course_data;
@@ -182,24 +180,6 @@ class grade_fetcher {
         }
         
         return $results;
-    }
-    
-    /**
-     * Get section information for a course
-     * 
-     * @param int $courseid Course ID
-     * @return string Section information
-     */
-    private static function get_course_section($courseid) {
-        global $DB;
-        
-        $sql = "SELECT cm.data
-                FROM {enrol_wds_course_meta} cm
-                WHERE cm.courseid = :courseid AND cm.datatype = 'section_code'";
-        
-        $result = $DB->get_field_sql($sql, ['courseid' => $courseid]);
-        
-        return $result ? $result : '';
     }
     
     /**
