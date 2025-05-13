@@ -25,23 +25,5 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$functions = [
-    'block_sportsgrades_search_students' => [
-        'classname'     => 'block_sportsgrades_external',
-        'methodname'    => 'search_students',
-        'classpath'     => 'blocks/sportsgrades/classes/external.php',
-        'description'   => 'Search for student athletes based on criteria',
-        'type'          => 'read',
-        'capabilities'  => 'block/sportsgrades:view',
-        'ajax'          => true,
-    ],
-    'block_sportsgrades_get_student_grades' => [
-        'classname'     => 'block_sportsgrades_external',
-        'methodname'    => 'get_student_grades',
-        'classpath'     => 'blocks/sportsgrades/classes/external.php',
-        'description'   => 'Get grades for a student athlete',
-        'type'          => 'read',
-        'capabilities'  => 'block/sportsgrades:viewgrades',
-        'ajax'          => true,
-    ],
-];
+// We're not using web services in this implementation
+$functions = [];

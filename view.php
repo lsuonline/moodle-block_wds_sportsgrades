@@ -25,13 +25,14 @@
 
 require_once('../../config.php');
 require_once($CFG->dirroot . '/blocks/sportsgrades/classes/search.php');
-require_once($CFG->dirroot . '/blocks/sportsgrades/classes/grade_fetcher.php');
+require_once($CFG->dirroot . '/blocks/sportsgrades/classes/forms/search_form.php');
+require_once($CFG->dirroot . '/blocks/sportsgrades/classes/output/search_results_table.php');
 
 // Page setup
 $PAGE->set_url(new moodle_url('/blocks/sportsgrades/view.php'));
 $PAGE->set_context(context_system::instance());
-$PAGE->set_title(get_string('pluginname', 'block_sportsgrades'));
-$PAGE->set_heading(get_string('pluginname', 'block_sportsgrades'));
+$PAGE->set_title(get_string('page_title', 'block_sportsgrades'));
+$PAGE->set_heading(get_string('page_title', 'block_sportsgrades'));
 $PAGE->set_pagelayout('standard');
 
 // Check access
@@ -46,30 +47,66 @@ if (empty($access)) {
     throw new moodle_exception('noaccess', 'block_sportsgrades');
 }
 
-// Include JS and CSS
-$PAGE->requires->js_call_amd('block_sportsgrades/search', 'init');
-$PAGE->requires->js_call_amd('block_sportsgrades/grade_display', 'init');
+// Create the search form
+$search_form = new block_sportsgrades_search_form();
 
 // Start output
 echo $OUTPUT->header();
 
-// Create and render search form
-$renderer = $PAGE->get_renderer('block_sportsgrades');
-$searchform = new \block_sportsgrades\output\search_form();
-echo $renderer->render($searchform);
+// Display the search form
+$search_form->display();
 
-// Add container for search results
-echo html_writer::start_div('sportsgrades-search-results', [
-    'id' => 'sportsgrades-search-results',
-]);
-echo html_writer::end_div();
-
-// Add container for grade display
-echo html_writer::start_div('sportsgrades-grade-display', [
-    'id' => 'sportsgrades-grade-display',
-    'style' => 'display: none;'
-]);
-echo html_writer::end_div();
+// Process form submission
+if ($data = $search_form->get_data()) {
+    // Convert form data to object for search
+    $search_params = new stdClass();
+    $search_params->universal_id = $data->universal_id;
+    $search_params->username = $data->username;
+    $search_params->firstname = $data->firstname;
+    $search_params->lastname = $data->lastname;
+    $search_params->major = $data->major;
+    $search_params->classification = $data->classification;
+    $search_params->sport = $data->sport;
+    
+    // Perform search
+    $results = $search::search_students($search_params);
+    
+    // Display results if search was successful
+    if (!empty($results['success']) && !empty($results['results'])) {
+        echo html_writer::tag('h4', get_string('search_results', 'block_sportsgrades'));
+        
+        // Create results table
+        $table = new block_sportsgrades_search_results_table('sportsgrades_search_results');
+        
+        // Prepare data for the table
+        $tabledata = [];
+        foreach ($results['results'] as $student) {
+            $row = new stdClass();
+            $row->id = $student->id;
+            $row->username = $student->username;
+            $row->universal_id = $student->universal_id;
+            $row->firstname = $student->firstname;
+            $row->lastname = $student->lastname;
+            $row->college = $student->college;
+            $row->major = $student->major;
+            $row->classification = $student->classification;
+            $row->sports = serialize($student->sports);
+            
+            $tabledata[] = $row;
+        }
+        
+        // Configure the table
+        $table->setup();
+        $table->set_data($tabledata);
+        
+        // Display the table
+        $table->finish_output();
+    } else if (!empty($results['error'])) {
+        echo html_writer::div($results['error'], 'alert alert-danger');
+    } else {
+        echo html_writer::div(get_string('search_no_results', 'block_sportsgrades'), 'alert alert-info');
+    }
+}
 
 // End output
 echo $OUTPUT->footer();

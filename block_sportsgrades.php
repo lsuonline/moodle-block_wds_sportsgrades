@@ -26,7 +26,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/blocks/sportsgrades/classes/search.php');
-require_once($CFG->dirroot . '/blocks/sportsgrades/classes/grade_fetcher.php');
 
 /**
  * Sports Grades block class
@@ -58,7 +57,7 @@ class block_sportsgrades extends block_base {
      * Return contents of the block
      */
     public function get_content() {
-        global $CFG, $USER, $PAGE, $OUTPUT;
+        global $CFG, $USER, $OUTPUT;
 
         if ($this->content !== null) {
             return $this->content;
@@ -77,15 +76,10 @@ class block_sportsgrades extends block_base {
 
         // Create a button to access the search page
         $searchurl = new moodle_url('/blocks/sportsgrades/view.php');
-        $searchbuttontext = get_string('search_title', 'block_sportsgrades');
+        $button = new single_button($searchurl, get_string('search_page_link', 'block_sportsgrades'), 'get');
+        $button->add_action(new popup_action('click', $searchurl, 'sportsgradeswindow', array('height' => 800, 'width' => 1000)));
         
-        $this->content->text .= html_writer::start_div('text-center');
-        $this->content->text .= html_writer::link(
-            $searchurl,
-            html_writer::tag('i', '', ['class' => 'fa fa-search']) . ' ' . $searchbuttontext,
-            ['class' => 'btn btn-primary']
-        );
-        $this->content->text .= html_writer::end_div();
+        $this->content->text .= html_writer::div($OUTPUT->render($button), 'text-center');
 
         return $this->content;
     }
@@ -119,9 +113,7 @@ class block_sportsgrades extends block_base {
             return true;
         }
 
-        // Alternative: Check for capabilities (for future implementation)
-        // return has_capability('block/sportsgrades:view', context_system::instance());
-
-        return false;
+        // Alternative: Check for capabilities
+        return has_capability('block/sportsgrades:view', context_system::instance());
     }
 }
