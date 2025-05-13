@@ -1,46 +1,68 @@
 /**
- * Styles for the Sports Grades block
+ * Styles for the Sports Grades block and search page
  */
 
-.block_sportsgrades .sportsgrades-loading {
+/* Common styles */
+.sportsgrades-loading {
     text-align: center;
     padding: 20px;
 }
 
-.block_sportsgrades .sportsgrades-advanced-fields {
+.sportsgrades-advanced-fields {
     margin-top: 15px;
     padding-top: 15px;
     border-top: 1px solid #eee;
 }
 
-.block_sportsgrades .sportsgrades-course-list {
+.sportsgrades-course-list {
     max-height: 400px;
     overflow-y: auto;
 }
 
-.block_sportsgrades .sportsgrades-course-item {
+.sportsgrades-course-item {
     cursor: pointer;
 }
 
-.block_sportsgrades .sportsgrades-course-item:hover {
+.sportsgrades-course-item:hover {
     background-color: #f8f9fa;
 }
 
-.block_sportsgrades .sportsgrades-course-item.active {
+.sportsgrades-course-item.active {
     background-color: #e9ecef;
 }
 
-.block_sportsgrades .sportsgrades-course-link {
+.sportsgrades-course-link {
     display: block;
     color: inherit;
     text-decoration: none;
 }
 
-.block_sportsgrades .sportsgrades-course-link:hover {
+.sportsgrades-course-link:hover {
     text-decoration: none;
 }
 
-.block_sportsgrades .sportsgrades-search-results,
-.block_sportsgrades .sportsgrades-grade-display {
+/* Block-specific styles */
+.block_sportsgrades .sportsgrades-block-button {
+    margin: 10px 0;
+}
+
+/* Page-specific styles */
+.path-blocks-sportsgrades .sportsgrades-search-container {
+    margin-bottom: 20px;
+}
+
+.path-blocks-sportsgrades .sportsgrades-search-results,
+.path-blocks-sportsgrades .sportsgrades-grade-display {
     margin-top: 20px;
+}
+
+.path-blocks-sportsgrades .sportsgrades-grade-container {
+    margin-top: 20px;
+}
+
+/* Responsive table adjustments */
+@media (max-width: 768px) {
+    .path-blocks-sportsgrades .table-responsive {
+        overflow-x: auto;
+    }
 }

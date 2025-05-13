@@ -91,9 +91,14 @@
                         {{/sports}}
                     </td>
                     <td>
-                        <a href="#" class="btn btn-primary btn-sm sportsgrades-view-grades" data-student-id="{{id}}">
-                            <i class="fa fa-eye"></i> {{#str}}result_view_grades, block_sportsgrades{{/str}}
-                        </a>
+                        <div class="btn-group">
+                            <a href="#" class="btn btn-primary btn-sm sportsgrades-view-grades" data-student-id="{{id}}">
+                                <i class="fa fa-eye"></i> {{#str}}result_view_grades, block_sportsgrades{{/str}}
+                            </a>
+                            <a href="view.php?studentid={{id}}" class="btn btn-secondary btn-sm" title="Direct link to student grades">
+                                <i class="fa fa-link"></i>
+                            </a>
+                        </div>
                     </td>
                 </tr>
                 {{/results}}

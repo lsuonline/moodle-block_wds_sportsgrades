@@ -29,6 +29,8 @@ $string['sportsgrades:myaddinstance'] = 'Add a new Sports Grades block to Dashbo
 $string['sportsgrades:view'] = 'View Sports Grades block';
 $string['sportsgrades:viewgrades'] = 'View sports student grades';
 $string['noaccess'] = 'You do not have access to view this block.';
+$string['block_title'] = 'Sports Grades';
+$string['page_title'] = 'Sports Grades Search';
 
 // Search form
 $string['search_title'] = 'Search Student Athletes';
@@ -47,6 +49,8 @@ $string['search_sport_all'] = 'All Sports';
 $string['search_results'] = 'Search Results';
 $string['search_no_results'] = 'No students found matching your criteria.';
 $string['search_error'] = 'An error occurred while searching.';
+$string['search_page_link'] = 'Open Sports Grades Search';
+$string['direct_link'] = 'Direct Link';
 
 // Results table
 $string['result_username'] = 'Username';

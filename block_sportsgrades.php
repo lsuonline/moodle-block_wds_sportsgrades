@@ -75,25 +75,16 @@ class block_sportsgrades extends block_base {
             return $this->content;
         }
 
-        // Include JS and CSS
-        $PAGE->requires->js_call_amd('block_sportsgrades/search', 'init');
-        $PAGE->requires->js_call_amd('block_sportsgrades/grade_display', 'init');
-
-        // Create search form
-        $renderer = $PAGE->get_renderer('block_sportsgrades');
-        $searchform = new \block_sportsgrades\output\search_form();
-        $this->content->text .= $renderer->render($searchform);
-
-        // Add container for search results
-        $this->content->text .= html_writer::start_div('sportsgrades-search-results', [
-            'id' => 'sportsgrades-search-results',
-        ]);
-        $this->content->text .= html_writer::end_div();
-
-        // Add container for grade display
-        $this->content->text .= html_writer::start_div('sportsgrades-grade-display', [
-            'id' => 'sportsgrades-grade-display',
-        ]);
+        // Create a button to access the search page
+        $searchurl = new moodle_url('/blocks/sportsgrades/view.php');
+        $searchbuttontext = get_string('search_title', 'block_sportsgrades');
+        
+        $this->content->text .= html_writer::start_div('text-center');
+        $this->content->text .= html_writer::link(
+            $searchurl,
+            html_writer::tag('i', '', ['class' => 'fa fa-search']) . ' ' . $searchbuttontext,
+            ['class' => 'btn btn-primary']
+        );
         $this->content->text .= html_writer::end_div();
 
         return $this->content;

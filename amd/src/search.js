@@ -21,6 +21,13 @@ import * as GradeDisplay from 'block_sportsgrades/grade_display';
 export const init = () => {
     registerEventListeners();
     toggleAdvancedSearch();
+    
+    // If URL has a studentid parameter, directly load that student
+    const urlParams = new URLSearchParams(window.location.search);
+    const studentId = urlParams.get('studentid');
+    if (studentId) {
+        GradeDisplay.loadGrades(parseInt(studentId));
+    }
 };
 
 /**
@@ -44,6 +51,11 @@ const registerEventListeners = () => {
         e.preventDefault();
         const studentId = $(this).data('student-id');
         GradeDisplay.loadGrades(studentId);
+        
+        // Update URL with student ID without refreshing the page
+        const url = new URL(window.location);
+        url.searchParams.set('studentid', studentId);
+        window.history.pushState({}, '', url);
     });
 };
 

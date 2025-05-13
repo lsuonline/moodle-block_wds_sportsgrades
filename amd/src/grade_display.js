@@ -47,6 +47,11 @@ const registerEventListeners = () => {
         // Hide grade display and show search results
         $('#sportsgrades-grade-display').hide();
         $('#sportsgrades-search-results').show();
+        
+        // Update URL to remove studentid parameter
+        const url = new URL(window.location);
+        url.searchParams.delete('studentid');
+        window.history.pushState({}, '', url);
     });
 };
 
