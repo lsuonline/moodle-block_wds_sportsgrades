@@ -50,7 +50,7 @@ class block_sportsgrades_search_form extends moodleform {
         $mform->setType('username', PARAM_TEXT);
         
         // Get list of sports from the database
-        $sports = $DB->get_records('enrol_wds_sport', null, 'name ASC', 'id, code, name');
+        $sports = $DB->get_records_sql('SELECT * FROM {enrol_wds_sport} GROUP BY name ORDER BY name ASC', null);
         $sport_options = ['' => get_string('search_sport_all', 'block_sportsgrades')];
         foreach ($sports as $sport) {
             $sport_options[$sport->code] = $sport->name;
@@ -70,17 +70,28 @@ class block_sportsgrades_search_form extends moodleform {
         
         $mform->addElement('text', 'major', get_string('search_major', 'block_sportsgrades'));
         $mform->setType('major', PARAM_TEXT);
-        
-        // Classifications
-        $classifications = [
-            '' => '',
-            'FR' => 'Freshman',
-            'SO' => 'Sophomore',
-            'JR' => 'Junior',
-            'SR' => 'Senior',
-            'GR' => 'Graduate'
-        ];
-        
+
+        $csql = "SELECT sm.data
+            FROM mdl_enrol_wds_students_meta sm
+            INNER JOIN mdl_enrol_wds_students_meta sm2
+                ON sm.studentid = sm2.studentid
+                AND sm2.datatype = 'Athletic_Team_ID'
+            WHERE sm.datatype = 'Classification'
+            GROUP BY sm.data";
+
+        $cobj = $DB->get_records_sql($csql, null);
+
+        $carray = array_keys($cobj);
+
+        $trimmed = array_map(
+            fn($key) => preg_replace('/^\S+\s+/', '', $key),
+            $carray
+        );
+
+        $classifications = array_combine($carray, $trimmed);
+
+        $classifications = ['' => ''] + $classifications;
+
         $mform->addElement('select', 'classification', get_string('search_classification', 'block_sportsgrades'), $classifications);
         
         // Add action buttons

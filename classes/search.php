@@ -71,17 +71,26 @@ class search {
                 ON u.id = stu.userid
             INNER JOIN mdl_enrol_wds_students_meta sm
                 ON sm.studentid = stu.id
-                AND sm.academic_period_id = 'LSUAM_SUMMER_1_2025'
+            INNER JOIN {enrol_wds_periods} per
+                ON per.academic_period_id = sm.academic_period_id
+                AND per.start_date <= UNIX_TIMESTAMP()
+                AND per.end_date >= UNIX_TIMESTAMP()
             INNER JOIN (
-                SELECT stumeta.studentid,
+                SELECT stumeta.studentid, stumeta.academic_period_id,
                     GROUP_CONCAT(CASE WHEN datatype = 'Athletic_Team_ID' THEN data ELSE NULL END) AS sport,
-                    GROUP_CONCAT(CASE WHEN datatype = 'Academic_Unit_Code' THEN data ELSE NULL END) AS college,
-                    GROUP_CONCAT(CASE WHEN datatype = 'Program_of_Study_Code' THEN data ELSE NULL END) AS major,
+                    GROUP_CONCAT(CASE WHEN datatype = 'Academic_Unit_Code' THEN 
+                        (SELECT academic_unit FROM mdl_enrol_wds_units WHERE academic_unit_code = data)
+                        ELSE NULL END) AS college,
+                    GROUP_CONCAT(CASE WHEN datatype = 'Program_of_Study_Code' THEN
+                        (SELECT program_of_study FROM mdl_enrol_wds_programs WHERE program_of_study_code = data)
+                        ELSE NULL END) AS major,
                     GROUP_CONCAT(CASE WHEN datatype = 'Classification' THEN data ELSE NULL END) AS classification
                 FROM mdl_enrol_wds_students_meta stumeta
-                WHERE stumeta.academic_period_id = 'LSUAM_SUMMER_1_2025'
-                GROUP BY stumeta.studentid
-                    ) p ON p.studentid = stu.id";
+                GROUP BY stumeta.studentid, stumeta.academic_period_id
+                    ) p
+                ON p.studentid = stu.id
+                AND p.academic_period_id = per.academic_period_id
+            WHERE sm.datatype = 'Athletic_Team_ID'";
         
         $conditions = [];
         $parmssql = [];
@@ -153,7 +162,7 @@ class search {
         }
         
         // Build the WHERE clause.
-        $sqlwhere = !empty($conditions) ? " WHERE " . implode(' AND ', $conditions) : "";
+        $sqlwhere = !empty($conditions) ? " AND " . implode(' AND ', $conditions) : "";
         
         // Add ORDER BY clause to sort results.
         $sqlorder = " ORDER BY u.lastname ASC, u.firstname ASC";
@@ -199,30 +208,21 @@ class search {
     public static function get_student_sports($studentid) {
         global $DB;
 
-$studentid = 38295;
-
         $sql = "SELECT CONCAT(sm.id, '-', s.id) as uniqueid, s.id, s.code, s.name 
             FROM {enrol_wds_sport} s
             INNER JOIN {enrol_wds_students_meta} sm
                 ON sm.data = s.code
                 AND sm.datatype = 'Athletic_Team_ID'
-                AND sm.academic_period_id = 'LSUAM_SUMMER_1_2025'
+            INNER JOIN mdl_enrol_wds_periods per
+                ON per.academic_period_id = sm.academic_period_id
+                AND per.start_date <= UNIX_TIMESTAMP()
+                AND per.end_date >= UNIX_TIMESTAMP()
             WHERE sm.studentid = :studentid 
             GROUP BY uniqueid
             ORDER BY s.name ASC";
         
         $sports = $DB->get_records_sql($sql, ['studentid' => $studentid]);
 
-/*
-echo"<pre>";
-var_dump($sql);
-var_dump($studentid);
-var_dump($sports);
-echo"</pre>";
-die();
-*/
-
-        
         // Transform the result to use the sport id as the key.
         $result = [];
         foreach ($sports as $sport) {

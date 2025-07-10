@@ -26,32 +26,35 @@
 require_once('../../config.php');
 require_once($CFG->dirroot . '/blocks/sportsgrades/classes/grade_fetcher.php');
 
-// Parameters
+// Parameters.
 $studentid = required_param('studentid', PARAM_INT);
 $courseid = optional_param('courseid', 0, PARAM_INT);
 
-// Page setup
+// Page setup.
 $PAGE->set_url(new moodle_url('/blocks/sportsgrades/view_grades.php', ['studentid' => $studentid]));
 $PAGE->set_context(context_system::instance());
 $PAGE->set_title(get_string('pluginname', 'block_sportsgrades'));
 $PAGE->set_heading(get_string('pluginname', 'block_sportsgrades'));
 $PAGE->set_pagelayout('standard');
 
-// Check access
+// Check access.
 require_login();
 require_capability('block/sportsgrades:viewgrades', context_system::instance());
 
-// Get student and grades
+// Get student and grades.
 $grade_fetcher = new \block_sportsgrades\grade_fetcher();
+$moodleuid = $DB->get_record('enrol_wds_students', ['id' => $studentid]);
+
+// Get grade grades.
 $grades = $grade_fetcher->get_course_grades($studentid);
 
-// Get student information
-$student = $DB->get_record('user', ['id' => $studentid], 'id, username, firstname, lastname');
+// Get moodle user information.
+$student = $DB->get_record('user', ['id' => $moodleuid->userid], 'id, username, firstname, lastname');
 
-// Start output
+// Start output.
 echo $OUTPUT->header();
 
-// Display back button
+// Display back button.
 $back_url = new moodle_url('/blocks/sportsgrades/view.php');
 echo html_writer::start_div('mb-3');
 echo html_writer::link(
@@ -62,11 +65,11 @@ echo html_writer::link(
 );
 echo html_writer::end_div();
 
-// Display student name
+// Display student name.
 echo html_writer::tag('h4', get_string('grade_title', 'block_sportsgrades', 
     $student->lastname . ', ' . $student->firstname));
 
-// Check if there are courses
+// Check if there are courses.
 if (empty($grades['courses'])) {
     echo html_writer::div(
         get_string('grade_no_courses', 'block_sportsgrades'),
@@ -76,10 +79,10 @@ if (empty($grades['courses'])) {
     exit;
 }
 
-// Display course list and grades
+// Display course list and grades.
 echo html_writer::start_div('row mt-4');
 
-// Courses column
+// Courses column.
 echo html_writer::start_div('col-md-4');
 echo html_writer::start_div('card');
 echo html_writer::div(
@@ -89,26 +92,42 @@ echo html_writer::div(
 
 echo html_writer::start_tag('ul', ['class' => 'list-group list-group-flush']);
 
+// Loop through the courses.
 foreach ($grades['courses'] as $i => $course) {
+
+    // Bould out the url with parms.
     $course_url = new moodle_url('/blocks/sportsgrades/view_grades.php', 
         ['studentid' => $studentid, 'courseid' => $course['id']]);
-    
+
+    // Make some classes.
     $classes = 'list-group-item d-flex justify-content-between align-items-center';
     if (!$courseid && $i == 0) {
-        $courseid = $course['id']; // Select first course by default
+
+        // Select first course by default.
+        $courseid = $course['id'];
         $classes .= ' active';
     } else if ($courseid == $course['id']) {
         $classes .= ' active';
     }
     
+    // Start the list item.
     echo html_writer::start_tag('li', ['class' => $classes]);
     
-    // Course details
-    echo html_writer::start_div();
+    // Open the anchor tag for the entire list item content.
+    echo html_writer::start_tag('a', [
+        'href' => $course_url->out(false),
+        'class' => 'd-flex justify-content-between align-items-center w-100 text-decoration-none',
+        'style' => 'color: inherit;'
+    ]);
+    
+    // Course details.
+    echo html_writer::start_div('flex-grow-1');
     echo html_writer::tag('strong', $course['fullname']);
     echo html_writer::start_div('text-muted small');
     if (!empty($course['term'])) {
-        echo $course['term'] . ' &middot; ';
+        $cterm = $course['term'];
+        $term = $DB->get_record('enrol_wds_periods', ['academic_period_id' => $cterm]);
+        echo ($term->period_year . ' ' . $term->period_type . ' &middot; ');
     }
     if (!empty($course['section'])) {
         echo get_string('grade_section', 'block_sportsgrades') . ': ' . $course['section'];
@@ -122,6 +141,8 @@ foreach ($grades['courses'] as $i => $course) {
     echo html_writer::div($course['final_grade_formatted'], 'small');
     echo html_writer::end_div();
     
+    // Close the anchor tag
+    echo html_writer::end_tag('a');
     echo html_writer::end_tag('li');
 }
 
@@ -160,7 +181,10 @@ if (!$selected_course) {
     echo html_writer::start_div('d-flex justify-content-between mb-3');
     echo html_writer::start_div();
     if (!empty($selected_course['term'])) {
-        echo html_writer::tag('span', $selected_course['term'], ['class' => 'badge badge-secondary mr-2']);
+        $cterm = $selected_course['term'];
+        $term = $DB->get_record('enrol_wds_periods', ['academic_period_id' => $cterm]);
+
+        echo html_writer::tag('span', $term->period_year . ' ' . $term->period_type, ['class' => 'badge badge-secondary mr-2']);
     }
     if (!empty($selected_course['section'])) {
         echo html_writer::tag('span', 
@@ -196,7 +220,7 @@ if (!$selected_course) {
             get_string('grade_weight', 'block_sportsgrades'),
             get_string('grade_value', 'block_sportsgrades'),
             get_string('grade_percentage', 'block_sportsgrades'),
-            get_string('grade_contribution', 'block_sportsgrades')
+            get_string('grade_letter', 'block_sportsgrades')
         ];
         $table->attributes['class'] = 'table table-striped table-hover';
         
@@ -204,9 +228,9 @@ if (!$selected_course) {
             $table->data[] = [
                 $item['name'],
                 $item['weight_formatted'],
-                $item['grade_formatted'] . ' / ' . $item['grademax'],
+                $item['grade_formatted'],
                 $item['percentage_formatted'],
-                $item['contribution_formatted']
+                $item['letter']
             ];
         }
         

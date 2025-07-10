@@ -67,14 +67,14 @@ if ($data = $search_form->get_data()) {
     $search_params->major = $data->major;
     $search_params->classification = $data->classification;
     $search_params->sport = $data->sport;
-    
+
     // Perform search.
     $results = $search::search_students($search_params);
-    
+
     // Display results if search was successful.
     if (!empty($results['success']) && !empty($results['results'])) {
         echo html_writer::tag('h4', get_string('search_results', 'block_sportsgrades'));
-        
+
         // Create a standard HTML table instead of using table_sql.
         $table = new html_table();
         $table->head = [
@@ -89,26 +89,26 @@ if ($data = $search_form->get_data()) {
             get_string('result_view_grades', 'block_sportsgrades')
         ];
         $table->attributes['class'] = 'table table-striped table-hover generaltable';
-        
+
         foreach ($results['results'] as $student) {
             // Format the sports column.
             $sports_output = '';
             if (!empty($student->sports)) {
                 foreach ($student->sports as $sport) {
-                    $sports_output .= html_writer::tag('span', $sport->name, 
+                    $sports_output .= html_writer::tag('span', $sport->name,
                         ['class' => 'badge badge-info m-1']);
                 }
             }
-            
+
             // Create the actions column with View Grades link.
-            $url = new moodle_url('/blocks/sportsgrades/view_grades.php', 
+            $url = new moodle_url('/blocks/sportsgrades/view_grades.php',
                 ['studentid' => $student->studentid]);
             $actions = html_writer::link(
                 $url,
                 get_string('result_view_grades', 'block_sportsgrades'),
                 ['class' => 'btn btn-primary btn-sm']
             );
-            
+
             // Add the row to the table.
             $table->data[] = [
                 $student->username,
@@ -117,12 +117,12 @@ if ($data = $search_form->get_data()) {
                 $student->lastname,
                 $student->college,
                 $student->major,
-                $student->classification,
+                preg_replace('/^\S+\s+/', '', $student->classification),
                 $sports_output,
                 $actions
             ];
         }
-        
+
         // Output the table.
         echo html_writer::table($table);
     } else if (!empty($results['error'])) {

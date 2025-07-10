@@ -28,33 +28,33 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/blocks/sportsgrades/classes/search.php');
 
 /**
- * Sports Grades block class
+ * Sports Grades block class.
  */
 class block_sportsgrades extends block_base {
 
     /**
-     * Initialize the block
+     * Initialize the block.
      */
     public function init() {
         $this->title = get_string('pluginname', 'block_sportsgrades');
     }
 
     /**
-     * Block has its own configuration screen
+     * Block has its own configuration screen.
      */
     public function has_config() {
         return true;
     }
 
     /**
-     * Allow instances in multiple areas
+     * Allow instances in multiple areas.
      */
     public function instance_allow_multiple() {
         return false;
     }
 
     /**
-     * Return contents of the block
+     * Return contents of the block.
      */
     public function get_content() {
         global $CFG, $USER, $OUTPUT;
@@ -63,18 +63,18 @@ class block_sportsgrades extends block_base {
             return $this->content;
         }
 
-        // Initialize content
+        // Initialize content.
         $this->content = new stdClass();
         $this->content->text = '';
         $this->content->footer = '';
 
-        // Check if user has access
+        // Check if user has access.
         if (!$this->has_access()) {
             $this->content->text = get_string('noaccess', 'block_sportsgrades');
             return $this->content;
         }
 
-        // Create a button to access the search page
+        // Create a button to access the search page.
         $searchurl = new moodle_url('/blocks/sportsgrades/view.php');
         $button = new single_button($searchurl, get_string('search_page_link', 'block_sportsgrades'), 'get');
         $button->add_action(new popup_action('click', $searchurl, 'sportsgradeswindow', array('height' => 800, 'width' => 1000)));
@@ -85,7 +85,7 @@ class block_sportsgrades extends block_base {
     }
 
     /**
-     * Specify which pages types this block can be displayed on
+     * Specify which pages types this block can be displayed on.
      */
     public function applicable_formats() {
         return [
@@ -96,24 +96,24 @@ class block_sportsgrades extends block_base {
     }
 
     /**
-     * Check if the current user has access to this block
+     * Check if the current user has access to this block.
      * @return bool
      */
     protected function has_access() {
         global $USER, $DB;
 
-        // Hardcoded access for now as requested
+        // Hardcoded access for now as requested.
         $allowed_users = [
             'rrusso33',
-            // Add more users as needed
+            // Add more users as needed.
         ];
 
-        // Check if current user is in the allowed list
+        // Check if current user is in the allowed list.
         if (in_array($USER->username, $allowed_users)) {
             return true;
         }
 
-        // Alternative: Check for capabilities
+        // Alternative: Check for capabilities.
         return has_capability('block/sportsgrades:view', context_system::instance());
     }
 }

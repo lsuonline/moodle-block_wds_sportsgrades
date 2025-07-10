@@ -30,11 +30,12 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->dirroot . '/grade/querylib.php');
 
+use grade_grade;
+
 /**
  * Class for fetching student grades
  */
 class grade_fetcher {
-    
     /**
      * Get course grades for a student
      * 
@@ -60,10 +61,10 @@ class grade_fetcher {
         }
         
         // Check cache first
-        $cached_data = self::get_cached_data($studentid);
-        if (!empty($cached_data)) {
-            return $cached_data;
-        }
+//        $cached_data = self::get_cached_data($studentid);
+//        if (!empty($cached_data)) {
+//            return $cached_data;
+//        }
         
         // Get courses the student is enrolled in
         $sql = "SELECT DISTINCT c.id AS courseid, stu.userid, c.fullname, c.shortname, 
@@ -86,8 +87,21 @@ class grade_fetcher {
         $results = [];
         foreach ($courses as $course) {
             // Get final grade for the course
-            $grade_info = grade_get_course_grade($studentid, $course->courseid);
-            
+            $grade_info = grade_get_course_grade($course->userid, $course->courseid);
+
+            $finalgrade = $grade_info->grade;
+
+            // Get the course total grade item (not an assignment).
+            $grade_item = \grade_item::fetch_course_item($course->courseid);
+
+            // Format the numeric grade as a letter.
+            $lettergrade = \grade_format_gradevalue(
+                $finalgrade,
+                $grade_item,
+                true,
+                GRADE_DISPLAY_TYPE_LETTER
+            );
+
             $course_data = [
                 'id' => $course->courseid,
                 'fullname' => $course->fullname,
@@ -96,8 +110,8 @@ class grade_fetcher {
                 'term' => $course->term,
                 'startdate' => $course->startdate,
                 'final_grade' => !empty($grade_info) ? $grade_info->grade : null,
-                'final_grade_formatted' => !empty($grade_info) ? number_format($grade_info->grade, 2) : '-',
-                'letter_grade' => !empty($grade_info) ? self::get_letter_grade($grade_info->grade) : '-',
+                'final_grade_formatted' => is_null($grade_info->grade) ? '' : number_format($grade_info->grade, $grade_item->get_decimals()),
+                'letter_grade' => isset($grade_info->grade) ? $lettergrade : 'N/A',
                 'grade_items' => self::get_grade_items($course->userid, $course->courseid)
             ];
             
@@ -113,10 +127,64 @@ class grade_fetcher {
         });
         
         // Cache the results
-        self::cache_data($studentid, $results);
+        // self::cache_data($studentid, $results);
         
         return ['courses' => $results];
     }
+
+    public static function sort_grade_items(array $grade_items): array {
+        // Convert objects to array if keys are not numeric.
+        $grade_items = array_values($grade_items);
+
+        // Sort by sortorder.
+        usort($grade_items, fn($a, $b) => (int)$a->sortorder <=> (int)$b->sortorder);
+
+        // Partition into course item, categories, and others.
+        $course_item = null;
+        $categories = [];
+        $children = [];
+        $uncategorized = [];
+
+        foreach ($grade_items as $item) {
+            $id = (int)$item->id;
+            $categoryid = isset($item->categoryid) ? (int)$item->categoryid : null;
+
+            if ($item->itemtype === 'course') {
+                $course_item = $item;
+            } elseif ($item->itemtype === 'category') {
+                $categories[$item->iteminstance] = $item;
+            } elseif ($categoryid) {
+                $children[$categoryid][] = $item;
+            } else {
+                $uncategorized[] = $item;
+            }
+        }
+
+        // Flatten in desired order.
+        $final = [];
+
+        foreach ($categories as $catid => $catitem) {
+            $final[] = $catitem;
+            if (isset($children[$catid])) {
+                foreach ($children[$catid] as $child) {
+                    $final[] = $child;
+                }
+            }
+        }
+
+        // Append uncategorized.
+        foreach ($uncategorized as $item) {
+            $final[] = $item;
+        }
+
+        // Append course item last.
+        if ($course_item) {
+            $final[] = $course_item;
+        }
+
+        return $final;
+    }
+
     
     /**
      * Get grade items for a course
@@ -126,80 +194,93 @@ class grade_fetcher {
      * @return array Grade items
      */
     private static function get_grade_items($studentid, $courseid) {
-        global $DB;
+        global $CFG, $DB;
+
+        // Get required grade stuffs.
+        require_once($CFG->libdir . '/gradelib.php');
+        require_once($CFG->dirroot . '/grade/lib.php');
         
         // Get grade items for the course
-        $grade_items = grade_get_grade_items($courseid);
-        
+        $grade_items = \grade_item::fetch_all(['courseid' => $courseid]);
+
         if (empty($grade_items)) {
             return [];
         }
-        
+
+        // Sort em.
+        $grade_items = self::sort_grade_items($grade_items);
+
         $results = [];
         foreach ($grade_items as $item) {
+
             if ($item->itemtype == 'course') {
-                continue; // Skip the course total item
+                  continue;
+            }
+
+            if ($item->itemtype == 'category') {
+                  $category = $DB->get_record('grade_categories', ['id' => $item->iteminstance]);
             }
             
             // Get the grade for this item
-            $grade = grade_get_grades($courseid, 'mod', $item->itemmodule, $item->iteminstance, $studentid);
-            
+            $grade = new grade_grade([
+                'itemid' => $item->id,
+                'userid' => $studentid
+            ]);
+
             // Get calculation info if available
             $weight = null;
             $contribution = null;
             
-            if (!empty($grade->items[0]->weightoverride)) {
-                $weight = $grade->items[0]->weightoverride;
-            } else if (!empty($grade->items[0]->weight)) {
-                $weight = $grade->items[0]->weight;
+            $weight = number_format($grade->aggregationweight * 100, $item->get_decimals());
+
+            $finalgrade = !is_null($grade->finalgrade) ? number_format($grade->finalgrade, $item->get_decimals()) : '-';
+            $grademax = number_format($grade->rawgrademax, $item->get_decimals());
+
+            // Format the numeric grade as a letter.
+            $lettergrade = \grade_format_gradevalue(
+                $grade->finalgrade,
+                $item,
+                true,
+                GRADE_DISPLAY_TYPE_LETTER
+            );
+
+            if ($item->itemtype == 'category') {
+                $results[] = [
+                    'id' => $item->id,
+                    'name' => $category->fullname,
+                    'type' => $item->itemtype,
+                    'module' => $item->itemmodule,
+                    'weight' => $weight,
+                    'weight_formatted' => !empty($weight) ? number_format($weight, $item->get_decimals()) . '%' : '-',
+                    'grade' => null,
+                    'grade_formatted' => null,
+                    'grademax' => null,
+                    'letter' => null,
+                    'percentage' => null,
+                    'percentage_formatted' => null
+                ];
+            } else {
+                $results[] = [
+                    'id' => $item->id,
+                    'name' => ' - ' . $item->itemname,
+                    'type' => $item->itemtype,
+                    'module' => $item->itemmodule,
+                    'weight' => $weight,
+                    'weight_formatted' => !empty($weight) ? number_format($weight, $item->get_decimals()) . '%' : '-',
+                    'grade' => $finalgrade,
+                    'grade_formatted' => $finalgrade . ' / ' . $grademax,
+                    'grademax' => $grademax,
+                    'letter' => $lettergrade,
+                    'percentage' => !empty($grade->finalgrade) ?
+                        ($finalgrade / $grademax) * 100 :
+                        null,
+                    'percentage_formatted' => !empty($grade->finalgrade) ?
+                        number_format(($finalgrade / $grademax) * 100, $item->get_decimals()) . '%' : '-'
+                ];
             }
-            
-            if (!empty($weight) && !empty($grade->items[0]->grademax) && !empty($grade->items[0]->grades[$studentid]->grade)) {
-                $percentage = ($grade->items[0]->grades[$studentid]->grade / $grade->items[0]->grademax) * 100;
-                $contribution = ($percentage * $weight) / 100;
-            }
-            
-            $results[] = [
-                'id' => $item->id,
-                'name' => $item->itemname,
-                'type' => $item->itemtype,
-                'module' => $item->itemmodule,
-                'weight' => $weight,
-                'weight_formatted' => !empty($weight) ? number_format($weight, 2) . '%' : '-',
-                'grade' => !empty($grade->items[0]->grades[$studentid]->grade) ? $grade->items[0]->grades[$studentid]->grade : null,
-                'grade_formatted' => !empty($grade->items[0]->grades[$studentid]->grade) ? number_format($grade->items[0]->grades[$studentid]->grade, 2) : '-',
-                'grademax' => $grade->items[0]->grademax,
-                'percentage' => !empty($grade->items[0]->grades[$studentid]->grade) ? 
-                    ($grade->items[0]->grades[$studentid]->grade / $grade->items[0]->grademax) * 100 : null,
-                'percentage_formatted' => !empty($grade->items[0]->grades[$studentid]->grade) ? 
-                    number_format(($grade->items[0]->grades[$studentid]->grade / $grade->items[0]->grademax) * 100, 2) . '%' : '-',
-                'contribution' => $contribution,
-                'contribution_formatted' => !empty($contribution) ? 
-                    number_format($contribution, 2) . '%' : '-'
-            ];
         }
         
         return $results;
-    }
-    
-    /**
-     * Convert numeric grade to letter grade
-     * 
-     * @param float $grade Numeric grade
-     * @return string Letter grade
-     */
-    private static function get_letter_grade($grade) {
-        if ($grade >= 90) {
-            return 'A';
-        } else if ($grade >= 80) {
-            return 'B';
-        } else if ($grade >= 70) {
-            return 'C';
-        } else if ($grade >= 60) {
-            return 'D';
-        } else {
-            return 'F';
-        }
     }
     
     /**
