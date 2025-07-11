@@ -26,16 +26,50 @@
     overflow-y: auto;
 }
 
+.table .category {
+    background-color: hsl(260, 100%, 93%) !important;
+}
+
+.table .categorized {
+    background-color: hsl(270, 100%, 95%) !important;
+}
+
+.table .category:hover {
+    background-color: hsl(255, 100%, 90%) !important;
+}
+
+.table .categorized:hover {
+    background-color: hsl(260, 100%, 92%) !important;
+}
+
+
+.table .categorized td:first-child {
+    padding-left: 2em;
+}
+
 .sportsgrades-course-item {
     transition: background-color 0.2s;
 }
 
 .sportsgrades-course-item:hover {
-    background-color: #f8f9fa;
+    background-color: hsl(270, 100%, 92%);
 }
 
 .sportsgrades-course-item.active {
-    background-color: #e9ecef;
+    background-color: #461d7c !important;
+}
+
+.sportsgrades-course-item.active .badge.badge-primary {
+    background-color: #000000;
+    border: 1px solid #fdd023;
+}
+
+.sportsgrades-course-item .badge.badge-primary {
+    border-radius: 10px;
+}
+
+.sportsgrades-course-item.active .text-muted.small {
+    color: #fdd023 !important;
 }
 
 /* Responsive adjustments */

@@ -36,6 +36,7 @@ $PAGE->set_context(context_system::instance());
 $PAGE->set_title(get_string('pluginname', 'block_sportsgrades'));
 $PAGE->set_heading(get_string('pluginname', 'block_sportsgrades'));
 $PAGE->set_pagelayout('standard');
+$PAGE->requires->css($CFG->dirroot . '/blocks/sportsgrades/styles.css');
 
 // Check access.
 require_login();
@@ -100,7 +101,7 @@ foreach ($grades['courses'] as $i => $course) {
         ['studentid' => $studentid, 'courseid' => $course['id']]);
 
     // Make some classes.
-    $classes = 'list-group-item d-flex justify-content-between align-items-center';
+    $classes = 'list-group-item d-flex justify-content-between align-items-center sportsgrades-course-item';
     if (!$courseid && $i == 0) {
 
         // Select first course by default.
@@ -196,7 +197,7 @@ if (!$selected_course) {
     
     echo html_writer::start_div();
     echo html_writer::tag('span', 
-        get_string('grade_final', 'block_sportsgrades') . ': ' . $selected_course['final_grade_formatted'], 
+        get_string('grade_final', 'block_sportsgrades') . ': ' . $selected_course['final_grade_formatted'] . ' / ' . $selected_course['grademax'], 
         ['class' => 'badge badge-success mr-2']
     );
     echo html_writer::tag('span', 
@@ -225,24 +226,37 @@ if (!$selected_course) {
         $table->attributes['class'] = 'table table-striped table-hover';
         
         foreach ($selected_course['grade_items'] as $item) {
-            $table->data[] = [
+
+            // Build out each row.
+            $row = new html_table_row([
                 $item['name'],
                 $item['weight_formatted'],
                 $item['grade_formatted'],
                 $item['percentage_formatted'],
                 $item['letter']
-            ];
+            ]);
+
+            $row->attributes = ['class' => '' . $item['iteminfo']];
+
+            // Add the row to the table.
+            $table->data[] = $row;
         }
         
         echo html_writer::table($table);
     }
 }
 
-echo html_writer::end_div(); // End card-body
-echo html_writer::end_div(); // End card
-echo html_writer::end_div(); // End col-md-8
+// End card-body.
+echo html_writer::end_div();
 
-echo html_writer::end_div(); // End row
+// End card.
+echo html_writer::end_div();
 
-// End output
+// End col-md-8.
+echo html_writer::end_div();
+
+// End row.
+echo html_writer::end_div();
+
+// End output.
 echo $OUTPUT->footer();

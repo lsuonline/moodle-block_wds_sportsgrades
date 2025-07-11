@@ -86,20 +86,43 @@ class grade_fetcher {
         
         $results = [];
         foreach ($courses as $course) {
-            // Get final grade for the course
-            $grade_info = grade_get_course_grade($course->userid, $course->courseid);
 
-            $finalgrade = $grade_info->grade;
-
-            // Get the course total grade item (not an assignment).
+            // Get the course total grade item.
             $grade_item = \grade_item::fetch_course_item($course->courseid);
+
+            // Get the student's final grade object for the course.
+            $grade_info = \grade_grade::fetch([
+                'itemid' => $grade_item->id,
+                'userid' => $course->userid,
+            ]);
+
+            if ($grade_info) {
+                $finalgrade = $grade_info->finalgrade;
+                $grade_info->grade = $grade_info->finalgrade;
+                $grademax = $grade_info->rawgrademax;
+                $grade_item->grademax = $grade_info->rawgrademax;
+            } else {
+                $grade_info = \grade_get_course_grade($course->userid, $course->courseid);
+                $finalgrade = $grade_info->grade;
+                $grademax = $grade_item->grademax;
+            }
 
             // Format the numeric grade as a letter.
             $lettergrade = \grade_format_gradevalue(
                 $finalgrade,
                 $grade_item,
                 true,
-                GRADE_DISPLAY_TYPE_LETTER
+                GRADE_DISPLAY_TYPE_LETTER,
+                $grade_item->get_decimals()
+            );
+
+            // Format the numeric grade as real.
+            $realgrade = \grade_format_gradevalue(
+                $finalgrade,
+                $grade_item,
+                true,
+                GRADE_DISPLAY_TYPE_REAL,
+                $grade_item->get_decimals()
             );
 
             $course_data = [
@@ -109,8 +132,11 @@ class grade_fetcher {
                 'section' => $course->section_number,
                 'term' => $course->term,
                 'startdate' => $course->startdate,
-                'final_grade' => !empty($grade_info) ? $grade_info->grade : null,
-                'final_grade_formatted' => is_null($grade_info->grade) ? '' : number_format($grade_info->grade, $grade_item->get_decimals()),
+                //'final_grade' => !empty($grade_info) ? $grade_info->grade : null,
+                //'final_grade_formatted' => is_null($grade_info->grade) ? '' : number_format($grade_info->grade, $grade_item->get_decimals()),
+                'final_grade' => !empty($grade_info) ? $realgrade : null,
+                'final_grade_formatted' => is_null($grade_info->grade) ? '' : $realgrade,
+                'grademax' => number_format($grademax, $grade_item->get_decimals()),
                 'letter_grade' => isset($grade_info->grade) ? $lettergrade : 'N/A',
                 'grade_items' => self::get_grade_items($course->userid, $course->courseid)
             ];
@@ -133,6 +159,7 @@ class grade_fetcher {
     }
 
     public static function sort_grade_items(array $grade_items): array {
+
         // Convert objects to array if keys are not numeric.
         $grade_items = array_values($grade_items);
 
@@ -147,15 +174,27 @@ class grade_fetcher {
 
         foreach ($grade_items as $item) {
             $id = (int)$item->id;
-            $categoryid = isset($item->categoryid) ? (int)$item->categoryid : null;
 
             if ($item->itemtype === 'course') {
                 $course_item = $item;
+            }
+
+            $categoryid = isset($item->categoryid) &&
+                (int)$item->categoryid != (int)$course_item->iteminstance ?
+                (int)$item->categoryid :
+                null;
+
+            if ($item->itemtype === 'course') {
+                $item->iteminfo = 'course';
+                $course_item = $item;
             } elseif ($item->itemtype === 'category') {
+                $item->iteminfo = 'category';
                 $categories[$item->iteminstance] = $item;
             } elseif ($categoryid) {
+                $item->iteminfo = 'categorized';
                 $children[$categoryid][] = $item;
             } else {
+                $item->iteminfo = 'uncategorized';
                 $uncategorized[] = $item;
             }
         }
@@ -244,6 +283,16 @@ class grade_fetcher {
                 GRADE_DISPLAY_TYPE_LETTER
             );
 
+            if ($weight == 0) {
+                $weight = '-';
+                $lettergrade = '-';
+            } else if ($weight < 0) {
+                $weight = 'Extra Credit';
+                $lettergrade = '-';
+            } else {
+                $weight = $weight . '%';
+            }
+
             if ($item->itemtype == 'category') {
                 $results[] = [
                     'id' => $item->id,
@@ -251,22 +300,14 @@ class grade_fetcher {
                     'type' => $item->itemtype,
                     'module' => $item->itemmodule,
                     'weight' => $weight,
-                    'weight_formatted' => !empty($weight) ? number_format($weight, $item->get_decimals()) . '%' : '-',
-                    'grade' => null,
-                    'grade_formatted' => null,
-                    'grademax' => null,
-                    'letter' => null,
-                    'percentage' => null,
-                    'percentage_formatted' => null
-                ];
-            } else {
-                $results[] = [
-                    'id' => $item->id,
-                    'name' => ' - ' . $item->itemname,
-                    'type' => $item->itemtype,
-                    'module' => $item->itemmodule,
-                    'weight' => $weight,
-                    'weight_formatted' => !empty($weight) ? number_format($weight, $item->get_decimals()) . '%' : '-',
+                    'weight_formatted' => $weight,
+                    'iteminfo' => $item->iteminfo,
+                    //'grade' => null,
+                    //'grade_formatted' => null,
+                    //'grademax' => null,
+                    //'letter' => null,
+                    //'percentage' => null,
+                    //'percentage_formatted' => null
                     'grade' => $finalgrade,
                     'grade_formatted' => $finalgrade . ' / ' . $grademax,
                     'grademax' => $grademax,
@@ -275,7 +316,48 @@ class grade_fetcher {
                         ($finalgrade / $grademax) * 100 :
                         null,
                     'percentage_formatted' => !empty($grade->finalgrade) ?
-                        number_format(($finalgrade / $grademax) * 100, $item->get_decimals()) . '%' : '-'
+                        number_format(($finalgrade / $grademax) * 100, $item->get_decimals()) . '%' :
+                        '-'
+                ];
+            } else if ($item->iteminfo == 'categorized') {
+                $results[] = [
+                    'id' => $item->id,
+                    'name' => $item->itemname,
+                    'type' => $item->itemtype,
+                    'module' => $item->itemmodule,
+                    'weight' => $weight,
+                    'weight_formatted' => $weight,
+                    'iteminfo' => $item->iteminfo,
+                    'grade' => $finalgrade,
+                    'grade_formatted' => $finalgrade . ' / ' . $grademax,
+                    'grademax' => $grademax,
+                    'letter' => $lettergrade,
+                    'percentage' => !empty($grade->finalgrade) ?
+                        ($finalgrade / $grademax) * 100 :
+                        null,
+                    'percentage_formatted' => !empty($grade->finalgrade) ?
+                        number_format(($finalgrade / $grademax) * 100, $item->get_decimals()) . '%' :
+                        '-'
+                ];
+            } else {
+                $results[] = [
+                    'id' => $item->id,
+                    'name' => $item->itemname,
+                    'type' => $item->itemtype,
+                    'module' => $item->itemmodule,
+                    'weight' => $weight,
+                    'weight_formatted' => $weight,
+                    'iteminfo' => $item->iteminfo,
+                    'grade' => $finalgrade,
+                    'grade_formatted' => $finalgrade . ' / ' . $grademax,
+                    'grademax' => $grademax,
+                    'letter' => $lettergrade,
+                    'percentage' => !empty($grade->finalgrade) ?
+                        ($finalgrade / $grademax) * 100 :
+                        null,
+                    'percentage_formatted' => !empty($grade->finalgrade) ?
+                        number_format(($finalgrade / $grademax) * 100, $item->get_decimals()) . '%' :
+                        '-'
                 ];
             }
         }
