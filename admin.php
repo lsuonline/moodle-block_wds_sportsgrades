@@ -27,7 +27,7 @@ require_once('../../config.php');
 require_once($CFG->libdir.'/adminlib.php');
 require_once($CFG->dirroot.'/blocks/wds_sportsgrades/classes/forms/add_user_form.php');
 
-admin_externalpage_setup('block_wds_sportsgrades_admin');
+admin_externalpage_setup('block_wds_sportsgrades_manage');
 
 $context = context_system::instance();
 require_capability('block/wds_sportsgrades:manageaccess', $context);
@@ -67,7 +67,7 @@ $mform->display();
 $users = $DB->get_records_sql('
     SELECT u.id, u.firstname, u.lastname, s.name AS sportname
     FROM {block_wds_sportsgrades_access} a
-    JOIN {user} u ON a.userid = u.id
+    INNER JOIN {user} u ON a.userid = u.id
     LEFT JOIN {enrol_wds_sport} s ON a.sportid = s.id
 ');
 

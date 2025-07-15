@@ -81,6 +81,12 @@ class block_wds_sportsgrades extends block_base {
         
         $this->content->text .= html_writer::div($OUTPUT->render($button), 'text-center');
 
+        if (has_capability('block/wds_sportsgrades:manageaccess', context_system::instance())) {
+            $manageurl = new moodle_url('/blocks/wds_sportsgrades/admin.php');
+            $managebutton = new single_button($manageurl, get_string('manageaccess', 'block_wds_sportsgrades'), 'get');
+            $this->content->footer = html_writer::div($OUTPUT->render($managebutton), 'text-center');
+        }
+
         return $this->content;
     }
 
