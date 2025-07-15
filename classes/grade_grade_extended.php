@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Sports Grades block
+ * Class extender for the Sports Grades block
  *
  * @package    block_wds_sportsgrades
  * @copyright  2025 Onwards - Robert Russo
@@ -23,4 +23,14 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
+if (!class_exists('grade_grade_extended')) {
+    class grade_grade_extended extends \grade_grade {
+        public $grade;
+    }
+}
+
+if (!class_exists('grade_item_extended')) {
+    class grade_item_extended extends \grade_item {
+        public $duedates;
+    }
+}

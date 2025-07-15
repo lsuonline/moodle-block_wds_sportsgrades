@@ -29,8 +29,10 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->dirroot . '/grade/querylib.php');
+require_once($CFG->dirroot . '/blocks/wds_sportsgrades/classes/grade_grade_extended.php');
 
-use grade_grade;
+use grade_grade_extended;
+use grade_item_extended;
 
 /**
  * Class for fetching student grades
@@ -45,7 +47,7 @@ class grade_fetcher {
     public static function get_course_grades($studentid) {
         global $DB, $USER;
         
-        // Check access first
+        // Check access first.
         $search = new search();
         $access = $search::get_user_access($USER->id);
         
@@ -53,20 +55,20 @@ class grade_fetcher {
             return ['error' => get_string('noaccess', 'block_wds_sportsgrades')];
         }
         
-        // Check if user has access to this specific student
+        // Check if user has access to this specific student.
         if (!$access['all_students'] && 
             !in_array($studentid, $access['student_ids']) && 
             !self::is_student_in_accessible_sports($studentid, $access['sports'])) {
             return ['error' => get_string('noaccess', 'block_wds_sportsgrades')];
         }
         
-        // Check cache first
+        // Check cache first.
 //        $cached_data = self::get_cached_data($studentid);
 //        if (!empty($cached_data)) {
 //            return $cached_data;
 //        }
         
-        // Get courses the student is enrolled in
+        // Get courses the student is enrolled in.
         $sql = "SELECT DISTINCT c.id AS courseid, stu.userid, c.fullname, c.shortname, 
                 sec.academic_period_id as term, sec.section_number, c.startdate
                 FROM {course} c
@@ -88,10 +90,10 @@ class grade_fetcher {
         foreach ($courses as $course) {
 
             // Get the course total grade item.
-            $grade_item = \grade_item::fetch_course_item($course->courseid);
+            $grade_item = grade_item_extended::fetch_course_item($course->courseid);
 
             // Get the student's final grade object for the course.
-            $grade_info = \grade_grade::fetch([
+            $grade_info = grade_grade_extended::fetch([
                 'itemid' => $grade_item->id,
                 'userid' => $course->userid,
             ]);
@@ -240,7 +242,7 @@ class grade_fetcher {
         require_once($CFG->dirroot . '/grade/lib.php');
         
         // Get grade items for the course
-        $grade_items = \grade_item::fetch_all(['courseid' => $courseid]);
+        $grade_items = grade_item_extended::fetch_all(['courseid' => $courseid]);
 
         if (empty($grade_items)) {
             return [];
@@ -252,6 +254,30 @@ class grade_fetcher {
         $results = [];
         foreach ($grade_items as $item) {
 
+            /* This is to try to get some due dates */
+            if ($item->itemtype == 'mod') {
+
+                // Add an empty array to the item.
+                $item->duedates = [];
+
+                // Get the module name from the item.
+                $modulename = $item->itemmodule;
+
+                // Get the module object.
+                $moduleinstance = $DB->get_record($modulename, ['id' => $item->iteminstance], '*', MUST_EXIST);
+
+                // These are some date fields.
+                $datefields = ['duedate', 'cutoffdate', 'timeclose', 'submissionend'];
+
+                // Loop through the date fields and get them.
+                foreach ($datefields as $field) {
+
+                    if (isset($moduleinstance->{$field}) && (!empty($moduleinstance->{$field}) || $moduleinstance->{$field} > 0)) {
+                        echo "$item->itemname $field: " . userdate($moduleinstance->{$field}) . "<br>";
+                    }
+                }
+            }
+
             if ($item->itemtype == 'course') {
                   continue;
             }
@@ -261,7 +287,7 @@ class grade_fetcher {
             }
             
             // Get the grade for this item
-            $grade = new grade_grade([
+            $grade = new grade_grade_extended([
                 'itemid' => $item->id,
                 'userid' => $studentid
             ]);
