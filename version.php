@@ -17,7 +17,7 @@
 /**
  * Version details for the Sports Grades block
  *
- * @package    block_sportsgrades
+ * @package    block_wds_sportsgrades
  * @copyright  2025 Onwards - Robert Russo
  * @copyright  2025 Onwards - Louisiana State University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->version   = 2025051200;
 $plugin->requires  = 2023100900;
-$plugin->component = 'block_sportsgrades';
+$plugin->component = 'block_wds_sportsgrades';
 $plugin->maturity  = MATURITY_ALPHA;
 $plugin->release   = '0.1.0';
 $plugin->dependencies = ['enrol_workdaystudent' => 2025021700];

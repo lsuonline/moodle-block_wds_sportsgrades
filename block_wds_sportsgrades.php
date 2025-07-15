@@ -17,7 +17,7 @@
 /**
  * Sports Grades block
  *
- * @package    block_sportsgrades
+ * @package    block_wds_sportsgrades
  * @copyright  2025 Onwards - Robert Russo
  * @copyright  2025 Onwards - Louisiana State University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,18 +25,18 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/blocks/sportsgrades/classes/search.php');
+require_once($CFG->dirroot . '/blocks/wds_sportsgrades/classes/search.php');
 
 /**
  * Sports Grades block class.
  */
-class block_sportsgrades extends block_base {
+class block_wds_sportsgrades extends block_base {
 
     /**
      * Initialize the block.
      */
     public function init() {
-        $this->title = get_string('pluginname', 'block_sportsgrades');
+        $this->title = get_string('pluginname', 'block_wds_sportsgrades');
     }
 
     /**
@@ -70,13 +70,13 @@ class block_sportsgrades extends block_base {
 
         // Check if user has access.
         if (!$this->has_access()) {
-            $this->content->text = get_string('noaccess', 'block_sportsgrades');
+            $this->content->text = get_string('noaccess', 'block_wds_sportsgrades');
             return $this->content;
         }
 
         // Create a button to access the search page.
-        $searchurl = new moodle_url('/blocks/sportsgrades/view.php');
-        $button = new single_button($searchurl, get_string('search_page_link', 'block_sportsgrades'), 'get');
+        $searchurl = new moodle_url('/blocks/wds_sportsgrades/view.php');
+        $button = new single_button($searchurl, get_string('search_page_link', 'block_wds_sportsgrades'), 'get');
         $button->add_action(new popup_action('click', $searchurl, 'sportsgradeswindow', array('height' => 800, 'width' => 1000)));
         
         $this->content->text .= html_writer::div($OUTPUT->render($button), 'text-center');
@@ -114,6 +114,6 @@ class block_sportsgrades extends block_base {
         }
 
         // Alternative: Check for capabilities.
-        return has_capability('block/sportsgrades:view', context_system::instance());
+        return has_capability('block/wds_sportsgrades:view', context_system::instance());
     }
 }

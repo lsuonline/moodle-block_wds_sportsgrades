@@ -17,7 +17,7 @@
 /**
  * Search form for Sports Grades block
  *
- * @package    block_sportsgrades
+ * @package    block_wds_sportsgrades
  * @copyright  2025 Onwards - Robert Russo
  * @copyright  2025 Onwards - Louisiana State University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -30,7 +30,7 @@ require_once($CFG->libdir . '/formslib.php');
 /**
  * Student search form
  */
-class block_sportsgrades_search_form extends moodleform {
+class block_wds_sportsgrades_search_form extends moodleform {
     
     /**
      * Form definition
@@ -41,34 +41,34 @@ class block_sportsgrades_search_form extends moodleform {
         $mform = $this->_form;
         
         // Basic search fields
-        $mform->addElement('header', 'basic_search', get_string('search_title', 'block_sportsgrades'));
+        $mform->addElement('header', 'basic_search', get_string('search_title', 'block_wds_sportsgrades'));
         
-        $mform->addElement('text', 'universal_id', get_string('search_universal_id', 'block_sportsgrades'));
+        $mform->addElement('text', 'universal_id', get_string('search_universal_id', 'block_wds_sportsgrades'));
         $mform->setType('universal_id', PARAM_TEXT);
         
-        $mform->addElement('text', 'username', get_string('search_username', 'block_sportsgrades'));
+        $mform->addElement('text', 'username', get_string('search_username', 'block_wds_sportsgrades'));
         $mform->setType('username', PARAM_TEXT);
         
         // Get list of sports from the database
         $sports = $DB->get_records_sql('SELECT * FROM {enrol_wds_sport} GROUP BY name ORDER BY name ASC', null);
-        $sport_options = ['' => get_string('search_sport_all', 'block_sportsgrades')];
+        $sport_options = ['' => get_string('search_sport_all', 'block_wds_sportsgrades')];
         foreach ($sports as $sport) {
             $sport_options[$sport->code] = $sport->name;
         }
         
-        $mform->addElement('select', 'sport', get_string('search_sport', 'block_sportsgrades'), $sport_options);
+        $mform->addElement('select', 'sport', get_string('search_sport', 'block_wds_sportsgrades'), $sport_options);
         
         // Advanced search fields
-        $mform->addElement('header', 'advanced_search', get_string('search_advanced', 'block_sportsgrades'));
+        $mform->addElement('header', 'advanced_search', get_string('search_advanced', 'block_wds_sportsgrades'));
         $mform->setExpanded('advanced_search', false);
         
-        $mform->addElement('text', 'firstname', get_string('search_firstname', 'block_sportsgrades'));
+        $mform->addElement('text', 'firstname', get_string('search_firstname', 'block_wds_sportsgrades'));
         $mform->setType('firstname', PARAM_TEXT);
         
-        $mform->addElement('text', 'lastname', get_string('search_lastname', 'block_sportsgrades'));
+        $mform->addElement('text', 'lastname', get_string('search_lastname', 'block_wds_sportsgrades'));
         $mform->setType('lastname', PARAM_TEXT);
         
-        $mform->addElement('text', 'major', get_string('search_major', 'block_sportsgrades'));
+        $mform->addElement('text', 'major', get_string('search_major', 'block_wds_sportsgrades'));
         $mform->setType('major', PARAM_TEXT);
 
         $csql = "SELECT sm.data
@@ -92,9 +92,9 @@ class block_sportsgrades_search_form extends moodleform {
 
         $classifications = ['' => ''] + $classifications;
 
-        $mform->addElement('select', 'classification', get_string('search_classification', 'block_sportsgrades'), $classifications);
+        $mform->addElement('select', 'classification', get_string('search_classification', 'block_wds_sportsgrades'), $classifications);
         
         // Add action buttons
-        $this->add_action_buttons(false, get_string('search_button', 'block_sportsgrades'));
+        $this->add_action_buttons(false, get_string('search_button', 'block_wds_sportsgrades'));
     }
 }

@@ -17,13 +17,13 @@
 /**
  * Grade fetcher for the Sports Grades block
  *
- * @package    block_sportsgrades
+ * @package    block_wds_sportsgrades
  * @copyright  2025 Onwards - Robert Russo
  * @copyright  2025 Onwards - Louisiana State University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace block_sportsgrades;
+namespace block_wds_sportsgrades;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -50,14 +50,14 @@ class grade_fetcher {
         $access = $search::get_user_access($USER->id);
         
         if (empty($access)) {
-            return ['error' => get_string('noaccess', 'block_sportsgrades')];
+            return ['error' => get_string('noaccess', 'block_wds_sportsgrades')];
         }
         
         // Check if user has access to this specific student
         if (!$access['all_students'] && 
             !in_array($studentid, $access['student_ids']) && 
             !self::is_student_in_accessible_sports($studentid, $access['sports'])) {
-            return ['error' => get_string('noaccess', 'block_sportsgrades')];
+            return ['error' => get_string('noaccess', 'block_wds_sportsgrades')];
         }
         
         // Check cache first
@@ -403,7 +403,7 @@ class grade_fetcher {
         $now = time();
         
         $sql = "SELECT data
-                FROM {block_sportsgrades_cache}
+                FROM {block_wds_sportsgrades_cache}
                 WHERE studentid = :studentid
                 AND timeexpires > :now
                 ORDER BY timecreated DESC
@@ -437,6 +437,6 @@ class grade_fetcher {
         $cache_record->timecreated = time();
         $cache_record->timeexpires = $expiry;
         
-        return $DB->insert_record('block_sportsgrades_cache', $cache_record);
+        return $DB->insert_record('block_wds_sportsgrades_cache', $cache_record);
     }
 }

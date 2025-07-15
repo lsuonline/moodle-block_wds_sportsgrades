@@ -17,7 +17,7 @@
 /**
  * Web service definitions for Sports Grades block
  *
- * @package    block_sportsgrades
+ * @package    block_wds_sportsgrades
  * @copyright  2025 Onwards - Robert Russo
  * @copyright  2025 Onwards - Louisiana State University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

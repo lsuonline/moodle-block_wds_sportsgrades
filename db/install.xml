@@ -4,7 +4,7 @@
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="block_sportsgrades_access" COMMENT="Stores users who have access to the block">
+    <TABLE NAME="block_wds_sportsgrades_access" COMMENT="Stores users who have access to the block">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="User ID"/>
@@ -24,7 +24,7 @@
       </INDEXES>
     </TABLE>
     
-    <TABLE NAME="block_sportsgrades_cache" COMMENT="Caches search results and grade data">
+    <TABLE NAME="block_wds_sportsgrades_cache" COMMENT="Caches search results and grade data">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="studentid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Student user ID"/>

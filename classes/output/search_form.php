@@ -17,13 +17,13 @@
 /**
  * Search form template for Sports Grades block
  *
- * @package    block_sportsgrades
+ * @package    block_wds_sportsgrades
  * @copyright  2025 Onwards - Robert Russo
  * @copyright  2025 Onwards - Louisiana State University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace block_sportsgrades\output;
+namespace block_wds_sportsgrades\output;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -64,17 +64,17 @@ class search_form implements renderable, templatable {
         
         // Add strings for the template
         $data->str = [
-            'search_title' => get_string('search_title', 'block_sportsgrades'),
-            'search_universal_id' => get_string('search_universal_id', 'block_sportsgrades'),
-            'search_username' => get_string('search_username', 'block_sportsgrades'),
-            'search_firstname' => get_string('search_firstname', 'block_sportsgrades'),
-            'search_lastname' => get_string('search_lastname', 'block_sportsgrades'),
-            'search_major' => get_string('search_major', 'block_sportsgrades'),
-            'search_classification' => get_string('search_classification', 'block_sportsgrades'),
-            'search_sport' => get_string('search_sport', 'block_sportsgrades'),
-            'search_sport_all' => get_string('search_sport_all', 'block_sportsgrades'),
-            'search_button' => get_string('search_button', 'block_sportsgrades'),
-            'search_advanced' => get_string('search_advanced', 'block_sportsgrades'),
+            'search_title' => get_string('search_title', 'block_wds_sportsgrades'),
+            'search_universal_id' => get_string('search_universal_id', 'block_wds_sportsgrades'),
+            'search_username' => get_string('search_username', 'block_wds_sportsgrades'),
+            'search_firstname' => get_string('search_firstname', 'block_wds_sportsgrades'),
+            'search_lastname' => get_string('search_lastname', 'block_wds_sportsgrades'),
+            'search_major' => get_string('search_major', 'block_wds_sportsgrades'),
+            'search_classification' => get_string('search_classification', 'block_wds_sportsgrades'),
+            'search_sport' => get_string('search_sport', 'block_wds_sportsgrades'),
+            'search_sport_all' => get_string('search_sport_all', 'block_wds_sportsgrades'),
+            'search_button' => get_string('search_button', 'block_wds_sportsgrades'),
+            'search_advanced' => get_string('search_advanced', 'block_wds_sportsgrades'),
         ];
         
         return $data;

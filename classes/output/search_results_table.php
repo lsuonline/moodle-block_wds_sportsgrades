@@ -17,7 +17,7 @@
 /**
  * Table for displaying student search results
  *
- * @package    block_sportsgrades
+ * @package    block_wds_sportsgrades
  * @copyright  2025 Onwards - Robert Russo
  * @copyright  2025 Onwards - Louisiana State University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -30,7 +30,7 @@ require_once($CFG->libdir . '/tablelib.php');
 /**
  * Class to display search results in a table
  */
-class block_sportsgrades_search_results_table extends table_sql {
+class block_wds_sportsgrades_search_results_table extends table_sql {
     
     /**
      * Constructor
@@ -54,15 +54,15 @@ class block_sportsgrades_search_results_table extends table_sql {
         
         // Define headers
         $this->define_headers([
-            get_string('result_username', 'block_sportsgrades'),
-            get_string('result_universal_id', 'block_sportsgrades'),
-            get_string('result_firstname', 'block_sportsgrades'),
-            get_string('result_lastname', 'block_sportsgrades'),
-            get_string('result_college', 'block_sportsgrades'),
-            get_string('result_major', 'block_sportsgrades'),
-            get_string('result_classification', 'block_sportsgrades'),
-            get_string('result_sports', 'block_sportsgrades'),
-            get_string('result_view_grades', 'block_sportsgrades')
+            get_string('result_username', 'block_wds_sportsgrades'),
+            get_string('result_universal_id', 'block_wds_sportsgrades'),
+            get_string('result_firstname', 'block_wds_sportsgrades'),
+            get_string('result_lastname', 'block_wds_sportsgrades'),
+            get_string('result_college', 'block_wds_sportsgrades'),
+            get_string('result_major', 'block_wds_sportsgrades'),
+            get_string('result_classification', 'block_wds_sportsgrades'),
+            get_string('result_sports', 'block_wds_sportsgrades'),
+            get_string('result_view_grades', 'block_wds_sportsgrades')
         ]);
         
         $this->sortable(true, 'lastname', SORT_ASC);
@@ -102,11 +102,11 @@ class block_sportsgrades_search_results_table extends table_sql {
     public function col_actions($row) {
         global $OUTPUT;
         
-        $url = new moodle_url('/blocks/sportsgrades/view_grades.php', ['studentid' => $row->id]);
+        $url = new moodle_url('/blocks/wds_sportsgrades/view_grades.php', ['studentid' => $row->id]);
         
         return html_writer::link(
             $url,
-            get_string('result_view_grades', 'block_sportsgrades'),
+            get_string('result_view_grades', 'block_wds_sportsgrades'),
             ['class' => 'btn btn-primary btn-sm']
         );
     }

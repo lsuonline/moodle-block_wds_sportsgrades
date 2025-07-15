@@ -17,13 +17,13 @@
 /**
  * Privacy implementation for the Sports Grades block
  *
- * @package    block_sportsgrades
+ * @package    block_wds_sportsgrades
  * @copyright  2025 Onwards - Robert Russo
  * @copyright  2025 Onwards - Louisiana State University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace block_sportsgrades\privacy;
+namespace block_wds_sportsgrades\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -49,27 +49,27 @@ class provider implements
      */
     public static function get_metadata(collection $collection) : collection {
         $collection->add_database_table(
-            'block_sportsgrades_cache',
+            'block_wds_sportsgrades_cache',
             [
-                'studentid' => 'privacy:metadata:block_sportsgrades_cache:studentid',
-                'data' => 'privacy:metadata:block_sportsgrades_cache:data',
-                'timecreated' => 'privacy:metadata:block_sportsgrades_cache:timecreated',
-                'timeexpires' => 'privacy:metadata:block_sportsgrades_cache:timeexpires',
+                'studentid' => 'privacy:metadata:block_wds_sportsgrades_cache:studentid',
+                'data' => 'privacy:metadata:block_wds_sportsgrades_cache:data',
+                'timecreated' => 'privacy:metadata:block_wds_sportsgrades_cache:timecreated',
+                'timeexpires' => 'privacy:metadata:block_wds_sportsgrades_cache:timeexpires',
             ],
-            'privacy:metadata:block_sportsgrades_cache'
+            'privacy:metadata:block_wds_sportsgrades_cache'
         );
 
         $collection->add_database_table(
-            'block_sportsgrades_access',
+            'block_wds_sportsgrades_access',
             [
-                'userid' => 'privacy:metadata:block_sportsgrades_access:userid',
-                'sportid' => 'privacy:metadata:block_sportsgrades_access:sportid',
-                'timecreated' => 'privacy:metadata:block_sportsgrades_access:timecreated',
-                'timemodified' => 'privacy:metadata:block_sportsgrades_access:timemodified',
-                'createdby' => 'privacy:metadata:block_sportsgrades_access:createdby',
-                'modifiedby' => 'privacy:metadata:block_sportsgrades_access:modifiedby',
+                'userid' => 'privacy:metadata:block_wds_sportsgrades_access:userid',
+                'sportid' => 'privacy:metadata:block_wds_sportsgrades_access:sportid',
+                'timecreated' => 'privacy:metadata:block_wds_sportsgrades_access:timecreated',
+                'timemodified' => 'privacy:metadata:block_wds_sportsgrades_access:timemodified',
+                'createdby' => 'privacy:metadata:block_wds_sportsgrades_access:createdby',
+                'modifiedby' => 'privacy:metadata:block_wds_sportsgrades_access:modifiedby',
             ],
-            'privacy:metadata:block_sportsgrades_access'
+            'privacy:metadata:block_wds_sportsgrades_access'
         );
 
         return $collection;
@@ -87,12 +87,12 @@ class provider implements
         // Add system context for cache entries.
         $sql = "SELECT c.id
                 FROM {context} c
-                JOIN {block_sportsgrades_cache} bc ON bc.studentid = :userid1
+                JOIN {block_wds_sportsgrades_cache} bc ON bc.studentid = :userid1
                 WHERE c.contextlevel = :contextlevel
                 UNION
                 SELECT c.id
                 FROM {context} c
-                JOIN {block_sportsgrades_access} ba ON ba.userid = :userid2
+                JOIN {block_wds_sportsgrades_access} ba ON ba.userid = :userid2
                 WHERE c.contextlevel = :contextlevel2";
                 
         $params = [
@@ -128,7 +128,7 @@ class provider implements
             
             // Export cache data for this user.
             $cachedata = [];
-            $cacherecords = $DB->get_records('block_sportsgrades_cache', ['studentid' => $userid]);
+            $cacherecords = $DB->get_records('block_wds_sportsgrades_cache', ['studentid' => $userid]);
             
             foreach ($cacherecords as $record) {
                 $cachedata[] = [
@@ -141,14 +141,14 @@ class provider implements
             if (!empty($cachedata)) {
                 $context = context_system::instance();
                 writer::with_context($context)->export_data(
-                    ['block_sportsgrades', 'cache'],
+                    ['block_wds_sportsgrades', 'cache'],
                     (object) ['cache_records' => $cachedata]
                 );
             }
             
             // Export access data for this user.
             $accessdata = [];
-            $accessrecords = $DB->get_records('block_sportsgrades_access', ['userid' => $userid]);
+            $accessrecords = $DB->get_records('block_wds_sportsgrades_access', ['userid' => $userid]);
             
             foreach ($accessrecords as $record) {
                 $accessdata[] = [
@@ -164,7 +164,7 @@ class provider implements
             if (!empty($accessdata)) {
                 $context = context_system::instance();
                 writer::with_context($context)->export_data(
-                    ['block_sportsgrades', 'access'],
+                    ['block_wds_sportsgrades', 'access'],
                     (object) ['access_records' => $accessdata]
                 );
             }
@@ -184,8 +184,8 @@ class provider implements
         }
         
         // Delete all cache and access records.
-        $DB->delete_records('block_sportsgrades_cache');
-        $DB->delete_records('block_sportsgrades_access');
+        $DB->delete_records('block_wds_sportsgrades_cache');
+        $DB->delete_records('block_wds_sportsgrades_access');
     }
 
     /**
@@ -208,10 +208,10 @@ class provider implements
             }
             
             // Delete cache records for this user.
-            $DB->delete_records('block_sportsgrades_cache', ['studentid' => $userid]);
+            $DB->delete_records('block_wds_sportsgrades_cache', ['studentid' => $userid]);
             
             // Delete access records for this user.
-            $DB->delete_records('block_sportsgrades_access', ['userid' => $userid]);
+            $DB->delete_records('block_wds_sportsgrades_access', ['userid' => $userid]);
         }
     }
 }

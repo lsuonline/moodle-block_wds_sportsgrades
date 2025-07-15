@@ -17,33 +17,33 @@
 /**
  * Display student grades
  *
- * @package    block_sportsgrades
+ * @package    block_wds_sportsgrades
  * @copyright  2025 Onwards - Robert Russo
  * @copyright  2025 Onwards - Louisiana State University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once('../../config.php');
-require_once($CFG->dirroot . '/blocks/sportsgrades/classes/grade_fetcher.php');
+require_once($CFG->dirroot . '/blocks/wds_sportsgrades/classes/grade_fetcher.php');
 
 // Parameters.
 $studentid = required_param('studentid', PARAM_INT);
 $courseid = optional_param('courseid', 0, PARAM_INT);
 
 // Page setup.
-$PAGE->set_url(new moodle_url('/blocks/sportsgrades/view_grades.php', ['studentid' => $studentid]));
+$PAGE->set_url(new moodle_url('/blocks/wds_sportsgrades/view_grades.php', ['studentid' => $studentid]));
 $PAGE->set_context(context_system::instance());
-$PAGE->set_title(get_string('pluginname', 'block_sportsgrades'));
-$PAGE->set_heading(get_string('pluginname', 'block_sportsgrades'));
+$PAGE->set_title(get_string('pluginname', 'block_wds_sportsgrades'));
+$PAGE->set_heading(get_string('pluginname', 'block_wds_sportsgrades'));
 $PAGE->set_pagelayout('standard');
-$PAGE->requires->css($CFG->dirroot . '/blocks/sportsgrades/styles.css');
+$PAGE->requires->css($CFG->dirroot . '/blocks/wds_sportsgrades/styles.css');
 
 // Check access.
 require_login();
 require_capability('block/sportsgrades:viewgrades', context_system::instance());
 
 // Get student and grades.
-$grade_fetcher = new \block_sportsgrades\grade_fetcher();
+$grade_fetcher = new \block_wds_sportsgrades\grade_fetcher();
 $moodleuid = $DB->get_record('enrol_wds_students', ['id' => $studentid]);
 
 // Get grade grades.
@@ -56,24 +56,24 @@ $student = $DB->get_record('user', ['id' => $moodleuid->userid], 'id, username, 
 echo $OUTPUT->header();
 
 // Display back button.
-$back_url = new moodle_url('/blocks/sportsgrades/view.php');
+$back_url = new moodle_url('/blocks/wds_sportsgrades/view.php');
 echo html_writer::start_div('mb-3');
 echo html_writer::link(
     $back_url,
     html_writer::tag('i', '', ['class' => 'fa fa-arrow-left']) . ' ' . 
-    get_string('grade_back_to_results', 'block_sportsgrades'),
+    get_string('grade_back_to_results', 'block_wds_sportsgrades'),
     ['class' => 'btn btn-secondary']
 );
 echo html_writer::end_div();
 
 // Display student name.
-echo html_writer::tag('h4', get_string('grade_title', 'block_sportsgrades', 
+echo html_writer::tag('h4', get_string('grade_title', 'block_wds_sportsgrades', 
     $student->lastname . ', ' . $student->firstname));
 
 // Check if there are courses.
 if (empty($grades['courses'])) {
     echo html_writer::div(
-        get_string('grade_no_courses', 'block_sportsgrades'),
+        get_string('grade_no_courses', 'block_wds_sportsgrades'),
         'alert alert-info'
     );
     echo $OUTPUT->footer();
@@ -87,7 +87,7 @@ echo html_writer::start_div('row mt-4');
 echo html_writer::start_div('col-md-4');
 echo html_writer::start_div('card');
 echo html_writer::div(
-    html_writer::tag('h5', get_string('grade_course', 'block_sportsgrades'), ['class' => 'mb-0']), 
+    html_writer::tag('h5', get_string('grade_course', 'block_wds_sportsgrades'), ['class' => 'mb-0']), 
     'card-header'
 );
 
@@ -97,7 +97,7 @@ echo html_writer::start_tag('ul', ['class' => 'list-group list-group-flush']);
 foreach ($grades['courses'] as $i => $course) {
 
     // Bould out the url with parms.
-    $course_url = new moodle_url('/blocks/sportsgrades/view_grades.php', 
+    $course_url = new moodle_url('/blocks/wds_sportsgrades/view_grades.php', 
         ['studentid' => $studentid, 'courseid' => $course['id']]);
 
     // Make some classes.
@@ -131,7 +131,7 @@ foreach ($grades['courses'] as $i => $course) {
         echo ($term->period_year . ' ' . $term->period_type . ' &middot; ');
     }
     if (!empty($course['section'])) {
-        echo get_string('grade_section', 'block_sportsgrades') . ': ' . $course['section'];
+        echo get_string('grade_section', 'block_wds_sportsgrades') . ': ' . $course['section'];
     }
     echo html_writer::end_div();
     echo html_writer::end_div();
@@ -155,7 +155,7 @@ echo html_writer::end_div(); // End col-md-4
 echo html_writer::start_div('col-md-8');
 echo html_writer::start_div('card');
 echo html_writer::div(
-    html_writer::tag('h5', get_string('grade_details', 'block_sportsgrades'), ['class' => 'mb-0']), 
+    html_writer::tag('h5', get_string('grade_details', 'block_wds_sportsgrades'), ['class' => 'mb-0']), 
     'card-header'
 );
 
@@ -172,7 +172,7 @@ foreach ($grades['courses'] as $course) {
 
 if (!$selected_course) {
     echo html_writer::div(
-        get_string('grade_no_items', 'block_sportsgrades'),
+        get_string('grade_no_items', 'block_wds_sportsgrades'),
         'alert alert-info'
     );
 } else {
@@ -189,7 +189,7 @@ if (!$selected_course) {
     }
     if (!empty($selected_course['section'])) {
         echo html_writer::tag('span', 
-            get_string('grade_section', 'block_sportsgrades') . ': ' . $selected_course['section'], 
+            get_string('grade_section', 'block_wds_sportsgrades') . ': ' . $selected_course['section'], 
             ['class' => 'badge badge-info']
         );
     }
@@ -197,11 +197,11 @@ if (!$selected_course) {
     
     echo html_writer::start_div();
     echo html_writer::tag('span', 
-        get_string('grade_final', 'block_sportsgrades') . ': ' . $selected_course['final_grade_formatted'] . ' / ' . $selected_course['grademax'], 
+        get_string('grade_final', 'block_wds_sportsgrades') . ': ' . $selected_course['final_grade_formatted'] . ' / ' . $selected_course['grademax'], 
         ['class' => 'badge badge-success mr-2']
     );
     echo html_writer::tag('span', 
-        get_string('grade_letter', 'block_sportsgrades') . ': ' . $selected_course['letter_grade'], 
+        get_string('grade_letter', 'block_wds_sportsgrades') . ': ' . $selected_course['letter_grade'], 
         ['class' => 'badge badge-primary']
     );
     echo html_writer::end_div();
@@ -210,18 +210,18 @@ if (!$selected_course) {
     // Check if there are grade items
     if (empty($selected_course['grade_items'])) {
         echo html_writer::div(
-            get_string('grade_no_items', 'block_sportsgrades'),
+            get_string('grade_no_items', 'block_wds_sportsgrades'),
             'alert alert-info'
         );
     } else {
         // Display grade items table
         $table = new html_table();
         $table->head = [
-            get_string('grade_item', 'block_sportsgrades'),
-            get_string('grade_weight', 'block_sportsgrades'),
-            get_string('grade_value', 'block_sportsgrades'),
-            get_string('grade_percentage', 'block_sportsgrades'),
-            get_string('grade_letter', 'block_sportsgrades')
+            get_string('grade_item', 'block_wds_sportsgrades'),
+            get_string('grade_weight', 'block_wds_sportsgrades'),
+            get_string('grade_value', 'block_wds_sportsgrades'),
+            get_string('grade_percentage', 'block_wds_sportsgrades'),
+            get_string('grade_letter', 'block_wds_sportsgrades')
         ];
         $table->attributes['class'] = 'table table-striped table-hover';
         

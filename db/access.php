@@ -17,7 +17,7 @@
 /**
  * Capabilities for the Sports Grades block
  *
- * @package    block_sportsgrades
+ * @package    block_wds_sportsgrades
  * @copyright  2025 Onwards - Robert Russo
  * @copyright  2025 Onwards - Louisiana State University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
-    'block/sportsgrades:myaddinstance' => [
+    'block/wds_sportsgrades:myaddinstance' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
@@ -35,7 +35,7 @@ $capabilities = [
         'clonepermissionsfrom' => 'moodle/my:manageblocks'
     ],
 
-    'block/sportsgrades:addinstance' => [
+    'block/wds_sportsgrades:addinstance' => [
         'riskbitmask' => RISK_SPAM | RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_BLOCK,
@@ -45,7 +45,7 @@ $capabilities = [
         'clonepermissionsfrom' => 'moodle/site:manageblocks'
     ],
 
-    'block/sportsgrades:view' => [
+    'block/wds_sportsgrades:view' => [
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
@@ -54,7 +54,7 @@ $capabilities = [
         ],
     ],
 
-    'block/sportsgrades:viewgrades' => [
+    'block/wds_sportsgrades:viewgrades' => [
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,

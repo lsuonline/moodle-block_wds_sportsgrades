@@ -17,13 +17,13 @@
 /**
  * Search functionality for the Sports Grades block.
  *
- * @package    block_sportsgrades
+ * @package    block_wds_sportsgrades
  * @copyright  2025 Onwards - Robert Russo
  * @copyright  2025 Onwards - Louisiana State University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace block_sportsgrades;
+namespace block_wds_sportsgrades;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -48,7 +48,7 @@ class search {
         $access = self::get_user_access($USER->id);
         
         if (empty($access)) {
-            return ['error' => get_string('noaccess', 'block_sportsgrades')];
+            return ['error' => get_string('noaccess', 'block_wds_sportsgrades')];
         }
         
         // Build the SQL query.

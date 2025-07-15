@@ -17,38 +17,38 @@
 /**
  * Sports Grades search page.
  *
- * @package    block_sportsgrades
+ * @package    block_wds_sportsgrades
  * @copyright  2025 Onwards - Robert Russo
  * @copyright  2025 Onwards - Louisiana State University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once('../../config.php');
-require_once($CFG->dirroot . '/blocks/sportsgrades/classes/search.php');
-require_once($CFG->dirroot . '/blocks/sportsgrades/classes/forms/search_form.php');
+require_once($CFG->dirroot . '/blocks/wds_sportsgrades/classes/search.php');
+require_once($CFG->dirroot . '/blocks/wds_sportsgrades/classes/forms/search_form.php');
 require_once($CFG->libdir . '/tablelib.php');
 
 // Page setup.
-$PAGE->set_url(new moodle_url('/blocks/sportsgrades/view.php'));
+$PAGE->set_url(new moodle_url('/blocks/wds_sportsgrades/view.php'));
 $PAGE->set_context(context_system::instance());
-$PAGE->set_title(get_string('page_title', 'block_sportsgrades'));
-$PAGE->set_heading(get_string('page_title', 'block_sportsgrades'));
+$PAGE->set_title(get_string('page_title', 'block_wds_sportsgrades'));
+$PAGE->set_heading(get_string('page_title', 'block_wds_sportsgrades'));
 $PAGE->set_pagelayout('standard');
 
 // Check access.
 require_login();
-require_capability('block/sportsgrades:view', context_system::instance());
+require_capability('block/wds_sportsgrades:view', context_system::instance());
 
 // Check if the user has access.
-$search = new \block_sportsgrades\search();
+$search = new \block_wds_sportsgrades\search();
 $access = $search::get_user_access($USER->id);
 
 if (empty($access)) {
-    throw new moodle_exception('noaccess', 'block_sportsgrades');
+    throw new moodle_exception('noaccess', 'block_wds_sportsgrades');
 }
 
 // Create the search form.
-$search_form = new block_sportsgrades_search_form();
+$search_form = new block_wds_sportsgrades_search_form();
 
 // Start output.
 echo $OUTPUT->header();
@@ -73,20 +73,20 @@ if ($data = $search_form->get_data()) {
 
     // Display results if search was successful.
     if (!empty($results['success']) && !empty($results['results'])) {
-        echo html_writer::tag('h4', get_string('search_results', 'block_sportsgrades'));
+        echo html_writer::tag('h4', get_string('search_results', 'block_wds_sportsgrades'));
 
         // Create a standard HTML table instead of using table_sql.
         $table = new html_table();
         $table->head = [
-            get_string('result_username', 'block_sportsgrades'),
-            get_string('result_universal_id', 'block_sportsgrades'),
-            get_string('result_firstname', 'block_sportsgrades'),
-            get_string('result_lastname', 'block_sportsgrades'),
-            get_string('result_college', 'block_sportsgrades'),
-            get_string('result_major', 'block_sportsgrades'),
-            get_string('result_classification', 'block_sportsgrades'),
-            get_string('result_sports', 'block_sportsgrades'),
-            get_string('result_view_grades', 'block_sportsgrades')
+            get_string('result_username', 'block_wds_sportsgrades'),
+            get_string('result_universal_id', 'block_wds_sportsgrades'),
+            get_string('result_firstname', 'block_wds_sportsgrades'),
+            get_string('result_lastname', 'block_wds_sportsgrades'),
+            get_string('result_college', 'block_wds_sportsgrades'),
+            get_string('result_major', 'block_wds_sportsgrades'),
+            get_string('result_classification', 'block_wds_sportsgrades'),
+            get_string('result_sports', 'block_wds_sportsgrades'),
+            get_string('result_view_grades', 'block_wds_sportsgrades')
         ];
         $table->attributes['class'] = 'table table-striped table-hover generaltable';
 
@@ -101,11 +101,11 @@ if ($data = $search_form->get_data()) {
             }
 
             // Create the actions column with View Grades link.
-            $url = new moodle_url('/blocks/sportsgrades/view_grades.php',
+            $url = new moodle_url('/blocks/wds_sportsgrades/view_grades.php',
                 ['studentid' => $student->studentid]);
             $actions = html_writer::link(
                 $url,
-                get_string('result_view_grades', 'block_sportsgrades'),
+                get_string('result_view_grades', 'block_wds_sportsgrades'),
                 ['class' => 'btn btn-primary btn-sm']
             );
 
@@ -128,7 +128,7 @@ if ($data = $search_form->get_data()) {
     } else if (!empty($results['error'])) {
         echo html_writer::div($results['error'], 'alert alert-danger');
     } else {
-        echo html_writer::div(get_string('search_no_results', 'block_sportsgrades'), 'alert alert-info');
+        echo html_writer::div(get_string('search_no_results', 'block_wds_sportsgrades'), 'alert alert-info');
     }
 }
 

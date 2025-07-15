@@ -17,7 +17,7 @@
 /**
  * External functions for Sports Grades block
  *
- * @package    block_sportsgrades
+ * @package    block_wds_sportsgrades
  * @copyright  2025 Onwards - Robert Russo
  * @copyright  2025 Onwards - Louisiana State University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -26,13 +26,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/externallib.php');
-require_once($CFG->dirroot . '/blocks/sportsgrades/classes/search.php');
-require_once($CFG->dirroot . '/blocks/sportsgrades/classes/grade_fetcher.php');
+require_once($CFG->dirroot . '/blocks/wds_sportsgrades/classes/search.php');
+require_once($CFG->dirroot . '/blocks/wds_sportsgrades/classes/grade_fetcher.php');
 
 /**
  * External services for Sports Grades block
  */
-class block_sportsgrades_external extends external_api {
+class block_wds_sportsgrades_external extends external_api {
     
     /**
      * Returns description of search_students parameters
@@ -73,10 +73,10 @@ class block_sportsgrades_external extends external_api {
         self::validate_context($context);
         
         // Check access
-        require_capability('block/sportsgrades:view', $context);
+        require_capability('block/wds_sportsgrades:view', $context);
         
         // Execute search
-        $search = new \block_sportsgrades\search();
+        $search = new \block_wds_sportsgrades\search();
         $results = $search->search_students($params);
         
         return $results;
@@ -151,7 +151,7 @@ class block_sportsgrades_external extends external_api {
         self::validate_context($context);
         
         // Check access
-        require_capability('block/sportsgrades:viewgrades', $context);
+        require_capability('block/wds_sportsgrades:viewgrades', $context);
         
         // Parameter validation
         $params = ['studentid' => $studentid];
@@ -161,7 +161,7 @@ class block_sportsgrades_external extends external_api {
         $student = $DB->get_record('user', ['id' => $studentid], 'id, firstname, lastname');
         
         // Execute grade fetching
-        $grade_fetcher = new \block_sportsgrades\grade_fetcher();
+        $grade_fetcher = new \block_wds_sportsgrades\grade_fetcher();
         $grades = $grade_fetcher->get_course_grades($studentid);
         
         // Add student data to the response

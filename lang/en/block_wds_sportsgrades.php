@@ -17,7 +17,7 @@
 /**
  * Language strings for Sports Grades block
  *
- * @package    block_sportsgrades
+ * @package    block_wds_sportsgrades
  * @copyright  2025 Onwards - Robert Russo
  * @copyright  2025 Onwards - Louisiana State University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -82,16 +82,16 @@ $string['grade_section'] = 'Section';
 $string['grade_term'] = 'Term';
 
 // Privacy
-$string['privacy:metadata:block_sportsgrades_cache'] = 'Temporarily stores grade information for performance.';
-$string['privacy:metadata:block_sportsgrades_cache:studentid'] = 'The ID of the student whose grades are cached.';
-$string['privacy:metadata:block_sportsgrades_cache:data'] = 'The cached grade data.';
-$string['privacy:metadata:block_sportsgrades_cache:timecreated'] = 'When this cache was created.';
-$string['privacy:metadata:block_sportsgrades_cache:timeexpires'] = 'When this cache expires.';
+$string['privacy:metadata:block_wds_sportsgrades_cache'] = 'Temporarily stores grade information for performance.';
+$string['privacy:metadata:block_wds_sportsgrades_cache:studentid'] = 'The ID of the student whose grades are cached.';
+$string['privacy:metadata:block_wds_sportsgrades_cache:data'] = 'The cached grade data.';
+$string['privacy:metadata:block_wds_sportsgrades_cache:timecreated'] = 'When this cache was created.';
+$string['privacy:metadata:block_wds_sportsgrades_cache:timeexpires'] = 'When this cache expires.';
 
-$string['privacy:metadata:block_sportsgrades_access'] = 'Stores user access information for the Sports Grades block.';
-$string['privacy:metadata:block_sportsgrades_access:userid'] = 'The ID of the user who has access.';
-$string['privacy:metadata:block_sportsgrades_access:sportid'] = 'The ID of the sport the user has access to.';
-$string['privacy:metadata:block_sportsgrades_access:timecreated'] = 'When this access was created.';
-$string['privacy:metadata:block_sportsgrades_access:timemodified'] = 'When this access was last modified.';
-$string['privacy:metadata:block_sportsgrades_access:createdby'] = 'Who created this access.';
-$string['privacy:metadata:block_sportsgrades_access:modifiedby'] = 'Who last modified this access.';
+$string['privacy:metadata:block_wds_sportsgrades_access'] = 'Stores user access information for the Sports Grades block.';
+$string['privacy:metadata:block_wds_sportsgrades_access:userid'] = 'The ID of the user who has access.';
+$string['privacy:metadata:block_wds_sportsgrades_access:sportid'] = 'The ID of the sport the user has access to.';
+$string['privacy:metadata:block_wds_sportsgrades_access:timecreated'] = 'When this access was created.';
+$string['privacy:metadata:block_wds_sportsgrades_access:timemodified'] = 'When this access was last modified.';
+$string['privacy:metadata:block_wds_sportsgrades_access:createdby'] = 'Who created this access.';
+$string['privacy:metadata:block_wds_sportsgrades_access:modifiedby'] = 'Who last modified this access.';

@@ -17,7 +17,7 @@
 /**
  * Renderer for Sports Grades block
  *
- * @package    block_sportsgrades
+ * @package    block_wds_sportsgrades
  * @copyright  2025 Onwards - Robert Russo
  * @copyright  2025 Onwards - Louisiana State University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -28,17 +28,17 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Renderer for the Sports Grades block
  */
-class block_sportsgrades_renderer extends plugin_renderer_base {
+class block_wds_sportsgrades_renderer extends plugin_renderer_base {
     
     /**
      * Render the search form
      *
-     * @param \block_sportsgrades\output\search_form $form The search form to render
+     * @param \block_wds_sportsgrades\output\search_form $form The search form to render
      * @return string HTML
      */
-    public function render_search_form(\block_sportsgrades\output\search_form $form) {
+    public function render_search_form(\block_wds_sportsgrades\output\search_form $form) {
         $data = $form->export_for_template($this);
-        return $this->render_from_template('block_sportsgrades/search_form', $data);
+        return $this->render_from_template('block_wds_sportsgrades/search_form', $data);
     }
     
     /**
@@ -51,7 +51,7 @@ class block_sportsgrades_renderer extends plugin_renderer_base {
         $data = [
             'results' => $results
         ];
-        return $this->render_from_template('block_sportsgrades/search_results', $data);
+        return $this->render_from_template('block_wds_sportsgrades/search_results', $data);
     }
     
     /**
@@ -66,7 +66,7 @@ class block_sportsgrades_renderer extends plugin_renderer_base {
             'student' => $student,
             'courses' => $grades['courses']
         ];
-        return $this->render_from_template('block_sportsgrades/grade_display', $data);
+        return $this->render_from_template('block_wds_sportsgrades/grade_display', $data);
     }
     
     /**
@@ -81,6 +81,6 @@ class block_sportsgrades_renderer extends plugin_renderer_base {
             'course' => $course,
             'grade_items' => $grade_items
         ];
-        return $this->render_from_template('block_sportsgrades/grade_items', $data);
+        return $this->render_from_template('block_wds_sportsgrades/grade_items', $data);
     }
 }
