@@ -29,15 +29,12 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->dirroot . '/grade/querylib.php');
-require_once($CFG->dirroot . '/blocks/wds_sportsgrades/classes/grade_grade_extended.php');
-
-use grade_grade_extended;
-use grade_item_extended;
 
 /**
  * Class for fetching student grades
  */
 class grade_fetcher {
+
     /**
      * Get course grades for a student
      * 
@@ -90,17 +87,16 @@ class grade_fetcher {
         foreach ($courses as $course) {
 
             // Get the course total grade item.
-            $grade_item = grade_item_extended::fetch_course_item($course->courseid);
+            $grade_item = \grade_item::fetch_course_item($course->courseid);
 
             // Get the student's final grade object for the course.
-            $grade_info = grade_grade_extended::fetch([
+            $grade_info = \grade_grade::fetch([
                 'itemid' => $grade_item->id,
                 'userid' => $course->userid,
             ]);
 
             if ($grade_info) {
                 $finalgrade = $grade_info->finalgrade;
-                $grade_info->grade = $grade_info->finalgrade;
                 $grademax = $grade_info->rawgrademax;
                 $grade_item->grademax = $grade_info->rawgrademax;
             } else {
@@ -134,12 +130,10 @@ class grade_fetcher {
                 'section' => $course->section_number,
                 'term' => $course->term,
                 'startdate' => $course->startdate,
-                //'final_grade' => !empty($grade_info) ? $grade_info->grade : null,
-                //'final_grade_formatted' => is_null($grade_info->grade) ? '' : number_format($grade_info->grade, $grade_item->get_decimals()),
-                'final_grade' => !empty($grade_info) ? $realgrade : null,
-                'final_grade_formatted' => is_null($grade_info->grade) ? '' : $realgrade,
+                'final_grade' => isset($grade_info->grade) || isset($grade_info->finalgrade) ? $realgrade : null,
+                'final_grade_formatted' => $realgrade,
                 'grademax' => number_format($grademax, $grade_item->get_decimals()),
-                'letter_grade' => isset($grade_info->grade) ? $lettergrade : 'N/A',
+                'letter_grade' => isset($grade_info->grade) || isset($grade_info->finalgrade) ? $lettergrade : 'N/A',
                 'grade_items' => self::get_grade_items($course->userid, $course->courseid)
             ];
             
@@ -242,7 +236,7 @@ class grade_fetcher {
         require_once($CFG->dirroot . '/grade/lib.php');
         
         // Get grade items for the course
-        $grade_items = grade_item_extended::fetch_all(['courseid' => $courseid]);
+        $grade_items = \grade_item::fetch_all(['courseid' => $courseid]);
 
         if (empty($grade_items)) {
             return [];
@@ -254,7 +248,8 @@ class grade_fetcher {
         $results = [];
         foreach ($grade_items as $item) {
 
-            /* This is to try to get some due dates */
+
+            /* This is to try to get some due dates
             if ($item->itemtype == 'mod') {
 
                 // Add an empty array to the item.
@@ -273,10 +268,11 @@ class grade_fetcher {
                 foreach ($datefields as $field) {
 
                     if (isset($moduleinstance->{$field}) && (!empty($moduleinstance->{$field}) || $moduleinstance->{$field} > 0)) {
-                        echo "$item->itemname $field: " . userdate($moduleinstance->{$field}) . "<br>";
+                        // echo "$item->itemname $field: " . userdate($moduleinstance->{$field}) . "<br>";
                     }
                 }
             }
+            */
 
             if ($item->itemtype == 'course') {
                   continue;
@@ -287,7 +283,7 @@ class grade_fetcher {
             }
             
             // Get the grade for this item
-            $grade = new grade_grade_extended([
+            $grade = new \grade_grade([
                 'itemid' => $item->id,
                 'userid' => $studentid
             ]);

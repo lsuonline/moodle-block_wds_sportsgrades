@@ -36,7 +36,6 @@ $PAGE->set_context(context_system::instance());
 $PAGE->set_title(get_string('pluginname', 'block_wds_sportsgrades'));
 $PAGE->set_heading(get_string('pluginname', 'block_wds_sportsgrades'));
 $PAGE->set_pagelayout('standard');
-$PAGE->requires->css($CFG->dirroot . '/blocks/wds_sportsgrades/styles.css');
 
 // Check access.
 require_login();
