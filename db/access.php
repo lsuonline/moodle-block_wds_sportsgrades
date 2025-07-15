@@ -62,4 +62,13 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+
+    'block/wds_sportsgrades:manageaccess' => [
+        'riskbitmask' => RISK_MANAGETRUST,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
 ];

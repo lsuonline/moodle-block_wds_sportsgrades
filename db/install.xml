@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/sportsgrades/db" VERSION="20250512" COMMENT="XMLDB file for Moodle blocks/sportsgrades"
+<XMLDB PATH="blocks/wds_sportsgrades/db" VERSION="20250512" COMMENT="XMLDB file for Moodle blocks/wds_sportsgrades"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >

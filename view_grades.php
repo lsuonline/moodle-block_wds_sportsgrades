@@ -40,7 +40,7 @@ $PAGE->requires->css($CFG->dirroot . '/blocks/wds_sportsgrades/styles.css');
 
 // Check access.
 require_login();
-require_capability('block/sportsgrades:viewgrades', context_system::instance());
+require_capability('block/wds_sportsgrades:viewgrades', context_system::instance());
 
 // Get student and grades.
 $grade_fetcher = new \block_wds_sportsgrades\grade_fetcher();

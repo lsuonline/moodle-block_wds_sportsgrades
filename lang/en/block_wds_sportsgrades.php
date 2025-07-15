@@ -23,14 +23,14 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Sports Grades Viewer';
+$string['pluginname'] = 'WDS Sports Grades';
 $string['sportsgrades:addinstance'] = 'Add a new Sports Grades block';
 $string['sportsgrades:myaddinstance'] = 'Add a new Sports Grades block to Dashboard';
 $string['sportsgrades:view'] = 'View Sports Grades block';
-$string['sportsgrades:viewgrades'] = 'View sports student grades';
+$string['sportsgrades:viewgrades'] = 'View student grades';
 $string['noaccess'] = 'You do not have access to view this block.';
-$string['block_title'] = 'Sports Grades';
-$string['page_title'] = 'Sports Grades Search';
+$string['block_title'] = 'WDS Sports Grades';
+$string['page_title'] = 'WDS Sports Grades Search';
 
 // Search form
 $string['search_title'] = 'Search Student Athletes';
@@ -49,7 +49,7 @@ $string['search_sport_all'] = 'All Sports';
 $string['search_results'] = 'Search Results';
 $string['search_no_results'] = 'No students found matching your criteria.';
 $string['search_error'] = 'An error occurred while searching.';
-$string['search_page_link'] = 'Open Sports Grades Search';
+$string['search_page_link'] = 'Sports Grades Search';
 $string['direct_link'] = 'Direct Link';
 
 // Results table
@@ -95,3 +95,10 @@ $string['privacy:metadata:block_wds_sportsgrades_access:timecreated'] = 'When th
 $string['privacy:metadata:block_wds_sportsgrades_access:timemodified'] = 'When this access was last modified.';
 $string['privacy:metadata:block_wds_sportsgrades_access:createdby'] = 'Who created this access.';
 $string['privacy:metadata:block_wds_sportsgrades_access:modifiedby'] = 'Who last modified this access.';
+
+// User management.
+$string['manageaccess'] = 'Manage Access';
+$string['adduser'] = 'Add User';
+$string['removeuser'] = 'Remove User';
+$string['sport'] = 'Sport';
+$string['all_sports'] = 'All Sports';

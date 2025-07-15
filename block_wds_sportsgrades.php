@@ -105,7 +105,6 @@ class block_wds_sportsgrades extends block_base {
         // Hardcoded access for now as requested.
         $allowed_users = [
             'rrusso33',
-            // Add more users as needed.
         ];
 
         // Check if current user is in the allowed list.
@@ -114,6 +113,21 @@ class block_wds_sportsgrades extends block_base {
         }
 
         // Alternative: Check for capabilities.
-        return has_capability('block/wds_sportsgrades:view', context_system::instance());
+        if (has_capability('block/wds_sportsgrades:view', context_system::instance())) {
+            return true;
+        }
+
+        // Check if the user has the manageaccess capability.
+        if (has_capability('block/wds_sportsgrades:manageaccess', context_system::instance())) {
+            return true;
+        }
+
+        // Check if the user is in the access table.
+        if ($DB->record_exists('block_wds_sportsgrades_access', ['userid' => $USER->id])) {
+            return true;
+        }
+
+        return false;
+
     }
 }
