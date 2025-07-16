@@ -72,6 +72,27 @@
     color: #fdd023 !important;
 }
 
+#page-blocks-wds_sportsgrades-admin .sportstable thead th {
+    border: 1px solid #d7d0e0;
+}
+
+#page-blocks-wds_sportsgrades-admin tr {
+    border: 1px solid #d7d0e0;
+}
+#page-blocks-wds_sportsgrades-admin .sportstable td {
+    width: 25%;
+    font-size: 1.1em;
+}
+
+#page-blocks-wds_sportsgrades-admin .sportsbutton button.btn-secondary {
+    background-color: #fff;
+}
+
+#page-blocks-wds_sportsgrades-admin .sportsbutton button.btn-secondary:hover {
+    background-color: #3a1867;
+}
+
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .sportsgrades-course-list {

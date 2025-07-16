@@ -27,19 +27,36 @@ require_once('../../config.php');
 require_once($CFG->libdir.'/adminlib.php');
 require_once($CFG->dirroot.'/blocks/wds_sportsgrades/classes/forms/add_user_form.php');
 
-// admin_externalpage_setup('block_wds_sportsgrades_manage');
-
+// Set the context.
 $context = context_system::instance();
+
+// Page setup.
+$PAGE->set_url(new moodle_url('/blocks/wds_sportsgrades/admin.php'));
+
+$PAGE->set_context($context);
+
+$PAGE->set_title(get_string('wdsaddusertitle', 'block_wds_sportsgrades'));
+$PAGE->set_heading(get_string('wdsaddusertitle', 'block_wds_sportsgrades'));
+$PAGE->set_pagelayout('standard');
+
+require_login();
 require_capability('block/wds_sportsgrades:manageaccess', $context);
 
 $mform = new add_user_form();
 
 if ($mform->is_cancelled()) {
-    redirect(new moodle_url('/my/'));
-} else if ($formdata = $mform->get_data()) {
+    redirect(new moodle_url('/'));
+
+} else if ($mform->is_submitted() && $mform->is_validated()) {
+
+    // Get the form data.
+    $formdata = $mform->get_data();
+
     // Process the form data.
     if (!empty($formdata->useradd)) {
+
         foreach ($formdata->useradd as $userid) {
+
             $record = new stdClass();
             $record->userid = $userid;
             $record->sportid = $formdata->sportid;
@@ -47,29 +64,33 @@ if ($mform->is_cancelled()) {
             $record->timemodified = time();
             $record->createdby = $USER->id;
             $record->modifiedby = $USER->id;
-            $DB->insert_record('block_wds_sportsgrades_access', $record);
+            $newentry = $DB->insert_record('block_wds_sportsgrades_access', $record);
+
+        }
+
+        redirect(new moodle_url('/blocks/wds_sportsgrades/admin.php'));
+    } else {
+
+        if (optional_param('userremove', 0, PARAM_INT) && confirm_sesskey()) {
+            $userremoveid = required_param('userremove', PARAM_INT);
+
+            $DB->delete_records('block_wds_sportsgrades_access', ['id' => $userremoveid]);
+
+            redirect(new moodle_url('/blocks/wds_sportsgrades/admin.php'));
         }
     }
-
-    if (!empty($formdata->userremove)) {
-        foreach ($formdata->userremove as $userid) {
-            $DB->delete_records('block_wds_sportsgrades_access', ['userid' => $userid]);
-        }
-    }
-
-    redirect(new moodle_url('/blocks/wds_sportsgrades/admin.php'));
 }
 
 echo $OUTPUT->header();
 
 $mform->display();
 
-$users = $DB->get_records_sql('
-    SELECT u.id, u.firstname, u.lastname, s.name AS sportname
-    FROM {block_wds_sportsgrades_access} a
-    INNER JOIN {user} u ON a.userid = u.id
-    LEFT JOIN {enrol_wds_sport} s ON a.sportid = s.id
-');
+/*
+$existingsql = 'SELECT u.*, sa.*, s.name AS sportname
+    FROM {user} u
+    INNER JOIN {block_wds_sportsgrades_access} sa ON sa.userid = u.id
+    INNER JOIN {enrol_wds_sport} s ON s.id = sa.sportid';
+$users = $DB->get_records_sql($existingsql);
 
 if (!empty($users)) {
     $table = new html_table();
@@ -80,7 +101,7 @@ if (!empty($users)) {
     ];
 
     foreach ($users as $user) {
-        $removeurl = new moodle_url('/blocks/wds_sportsgrades/admin.php', ['remove' => $user->id, 'sesskey' => sesskey()]);
+        $removeurl = new moodle_url('/blocks/wds_sportsgrades/admin.php', ['userremove' => $user->id, 'sesskey' => sesskey()]);
         $removebutton = new single_button($removeurl, get_string('remove'), 'post');
         $row = [
             fullname($user),
@@ -91,6 +112,6 @@ if (!empty($users)) {
     }
     echo html_writer::table($table);
 }
-
+*/
 
 echo $OUTPUT->footer();

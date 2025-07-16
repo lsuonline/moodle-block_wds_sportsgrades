@@ -97,8 +97,9 @@ $string['privacy:metadata:block_wds_sportsgrades_access:createdby'] = 'Who creat
 $string['privacy:metadata:block_wds_sportsgrades_access:modifiedby'] = 'Who last modified this access.';
 
 // User management.
+$string['wdsaddusertitle'] = 'Manage Sport Associations';
 $string['manageaccess'] = 'Manage Access';
 $string['adduser'] = 'Add User';
-$string['removeuser'] = 'Remove User';
+$string['removeuser'] = 'Remove Users';
 $string['sport'] = 'Sport';
 $string['all_sports'] = 'All Sports';
