@@ -175,6 +175,7 @@ if (!$selected_course) {
         'alert alert-info'
     );
 } else {
+
     // Display course header
     echo html_writer::tag('h6', $selected_course['fullname']);
     
@@ -197,7 +198,7 @@ if (!$selected_course) {
     echo html_writer::start_div();
     echo html_writer::tag('span', 
         get_string('grade_final', 'block_wds_sportsgrades') . ': ' . $selected_course['final_grade_formatted'] . ' / ' . $selected_course['grademax'], 
-        ['class' => 'badge badge-success mr-2']
+        ['class' => 'badge sportsbadge-' . (string)$selected_course['letter_grade'][0] . ' mr-2']
     );
     echo html_writer::tag('span', 
         get_string('grade_letter', 'block_wds_sportsgrades') . ': ' . $selected_course['letter_grade'], 

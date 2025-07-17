@@ -20,6 +20,34 @@
     margin-top: 20px;
 }
 
+.sportsgrades button {
+    margin-bottom: .5em;
+}
+
+.sportsbadge-A {
+    background-color: #CCFFDD;
+}
+
+.sportsbadge-B {
+    background-color: #CCDDFF;
+}
+
+.sportsbadge-C {
+    background-color: #FFFFCC;
+}
+
+.sportsbadge-P {
+    background-color: #CCFFCC;
+}
+
+.sportsbadge-D {
+    background-color: #FFD9B3;
+}
+
+.sportsbadge-F {
+    background-color: #FFCCCC;
+}
+
 /* Course list */
 .sportsgrades-course-list {
     max-height: 400px;
@@ -61,11 +89,11 @@
 
 .sportsgrades-course-item.active .badge.badge-primary {
     background-color: #000000;
-    border: 1px solid #fdd023;
+    border: 2px solid #fdd023;
 }
 
 .sportsgrades-course-item .badge.badge-primary {
-    border-radius: 10px;
+    border-radius: 5px;
 }
 
 .sportsgrades-course-item.active .text-muted.small {

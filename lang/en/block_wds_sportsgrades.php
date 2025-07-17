@@ -49,7 +49,7 @@ $string['search_sport_all'] = 'All Sports';
 $string['search_results'] = 'Search Results';
 $string['search_no_results'] = 'No students found matching your criteria.';
 $string['search_error'] = 'An error occurred while searching.';
-$string['search_page_link'] = 'Sports Grades Search';
+$string['search_page_link'] = 'Sports Grades';
 $string['direct_link'] = 'Direct Link';
 
 // Results table
@@ -80,6 +80,13 @@ $string['grade_loading'] = 'Loading grades...';
 $string['grade_back_to_results'] = 'Back to search results';
 $string['grade_section'] = 'Section';
 $string['grade_term'] = 'Term';
+
+// Permissions.
+$string['wds_sportsgrades:addinstance'] = 'Add WDS Sports Grade Block';
+$string['wds_sportsgrades:myaddinstance'] = 'Add WDS Sports Grade to /my';
+$string['wds_sportsgrades:view'] = 'View WDS Sports Grade block';
+$string['wds_sportsgrades:manageaccess'] = 'Manage Sports Grade Access';
+$string['wds_sportsgrades:viewgrades'] = 'View Student Sports Grades';
 
 // Privacy
 $string['privacy:metadata:block_wds_sportsgrades_cache'] = 'Temporarily stores grade information for performance.';

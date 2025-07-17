@@ -29,8 +29,9 @@ require_once($CFG->libdir.'/formslib.php');
 
 class add_user_form extends moodleform {
 
+    // Build the form.
     public function definition() {
-        global $DB, $OUTPUT;
+        global $DB;
 
         // Instantiate the form.
         $mform = $this->_form;
@@ -44,7 +45,7 @@ class add_user_form extends moodleform {
         // Get potential users by capability.
         $pusers = get_users_by_capability(
             $context,
-            'block/student_gradeviewer:sportsgrades',
+            'block/wds_sportsgrades:viewgrades',
             'u.id, u.*',
             'u.lastname ASC, u.firstname ASC');
 
@@ -125,17 +126,18 @@ class add_user_form extends moodleform {
                     $removeurl = new moodle_url('/blocks/wds_sportsgrades/admin.php',
                         ['userremove' => $euser->assignid, 'sesskey' => sesskey()]);
 
-                    // Build the button.
-                    $removebutton = new single_button($removeurl, get_string('remove'), 'post');
+                    // Create the link HTML directly.
+                    $removelink = html_writer::link($removeurl, get_string('remove'), 
+                        ['class' => 'btn btn-secondary']);
 
-                    // Add a calss to the parent div.
-                    $removebutton->class = 'sportsbutton';
+                    // Wrap it in the div.
+                    $removebutton = html_writer::div($removelink, 'sportsbutton');
 
                     // Build the table row.
                     $row = [
                         fullname($euser) . ' (' . $euser->username . ')',
                         $euser->sportname,
-                        $OUTPUT->render($removebutton),
+                        $removebutton,
                     ];
 
                     // Add the above row to the table data array.

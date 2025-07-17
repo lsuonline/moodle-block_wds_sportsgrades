@@ -46,21 +46,7 @@ require_capability('block/wds_sportsgrades:manageaccess', $context);
 $mform = new add_user_form();
 
 // Check if we're adding and the form has been submitted.
-if ($mform->is_submitted() && $mform->is_validated()) {
-
-echo"<pre>";
-
-echo("Submitted: ");
-var_dump($mform->is_submitted());
-
-echo("Validated: ");
-var_dump($mform->is_validated());
-
-echo("Data: ");
-var_dump($mform->get_data());
-
-echo"</pre>";
-die();
+if ($mform->is_submitted() && !$mform->is_cancelled() && $mform->is_validated()) {
 
     // Get the form data.
     $formdata = $mform->get_data();
@@ -103,22 +89,6 @@ if (optional_param('userremove', 0, PARAM_INT) && confirm_sesskey()) {
 
     // Get the url parm.
     $userremoveid = required_param('userremove', PARAM_INT);
-
-echo("Submitted: ");
-var_dump($mform->is_submitted());
-
-echo("Validated: ");
-var_dump($mform->is_validated());
-
-echo("Data: ");
-var_dump($mform->get_data());
-
-echo("Remove: ");
-var_dump($userremoveid);
-
-echo"</pre>";
-die();
-
 
     // Delete the record.
     $DB->delete_records('block_wds_sportsgrades_access', ['id' => $userremoveid]);

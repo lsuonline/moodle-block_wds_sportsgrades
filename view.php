@@ -35,6 +35,18 @@ $PAGE->set_title(get_string('page_title', 'block_wds_sportsgrades'));
 $PAGE->set_heading(get_string('page_title', 'block_wds_sportsgrades'));
 $PAGE->set_pagelayout('standard');
 
+// Add breadcrumbs.
+$PAGE->navbar->add(
+    get_string('home'),
+    new moodle_url('/')
+);
+
+$PAGE->navbar->add(
+    get_string('search_page_link', 'block_wds_sportsgrades'),
+    new moodle_url('/blocks/wds_sportsgrades/view.php')
+);
+
+
 // Check access.
 require_login();
 require_capability('block/wds_sportsgrades:view', context_system::instance());
@@ -106,7 +118,7 @@ if ($data = $search_form->get_data()) {
             $actions = html_writer::link(
                 $url,
                 get_string('result_view_grades', 'block_wds_sportsgrades'),
-                ['class' => 'btn btn-primary btn-sm']
+                ['class' => 'sportsgrades btn btn-primary btn-sm']
             );
 
             // Add the row to the table.

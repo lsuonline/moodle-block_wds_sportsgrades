@@ -59,6 +59,7 @@ class block_wds_sportsgrades extends block_base {
     public function get_content() {
         global $CFG, $USER, $OUTPUT;
 
+        // If we already ahve content show it.
         if ($this->content !== null) {
             return $this->content;
         }
@@ -68,24 +69,92 @@ class block_wds_sportsgrades extends block_base {
         $this->content->text = '';
         $this->content->footer = '';
 
-        // Check if user has access.
-        if (!$this->has_access()) {
-            $this->content->text = get_string('noaccess', 'block_wds_sportsgrades');
-            return $this->content;
+        // Set these to false for now.
+        $manageraccess = false;
+        $mentoraccess = false;
+
+        // Make sure we can manage stuff.
+        if (has_capability('block/wds_sportsgrades:manageaccess', context_system::instance())) {
+            $manageraccess = true;
         }
+
+        // Make sure we can use the tool.
+        if (has_capability('block/wds_sportsgrades:viewgrades', context_system::instance())) {
+            $mentoraccess = true;
+        }
+
+        // Check if user has access.
+        if (!$mentoraccess && !$manageraccess) {
+            return;
+        }
+
+        // Set this up for later.
+        $listitems = '';
+
+        // Build out the list of items for mentors.
+        $mentoritems = [
+            [
+                'text' => get_string('search_page_link', 'block_wds_sportsgrades'),
+                'url' => new moodle_url('/blocks/wds_sportsgrades/view.php'),
+                'icontype' => 'fontawesome',
+                'icon' => 'fa-square-root-variable'
+            ],
+        ];
+
+        // Build out manager items.
+        $manageritems = [
+            [
+                'text' => get_string('manageaccess', 'block_wds_sportsgrades'),
+                'url' => new moodle_url('/blocks/wds_sportsgrades/admin.php'),
+                'icontype' => 'fontawesome',
+                'icon' => 'fa-users-gear'
+            ],
+        ];
 
         // Create a button to access the search page.
-        $searchurl = new moodle_url('/blocks/wds_sportsgrades/view.php');
-        $button = new single_button($searchurl, get_string('search_page_link', 'block_wds_sportsgrades'), 'get');
-        $button->add_action(new popup_action('click', $searchurl, 'sportsgradeswindow', array('height' => 800, 'width' => 1000)));
-        
-        $this->content->text .= html_writer::div($OUTPUT->render($button), 'text-center');
+        if ($mentoraccess) {
 
-        if (has_capability('block/wds_sportsgrades:manageaccess', context_system::instance())) {
-            $manageurl = new moodle_url('/blocks/wds_sportsgrades/admin.php');
-            $managebutton = new single_button($manageurl, get_string('manageaccess', 'block_wds_sportsgrades'), 'get');
-            $this->content->footer = html_writer::div($OUTPUT->render($managebutton), 'text-center');
+            // Loop through the mentor items.
+            foreach ($mentoritems as $item) {
+                if ($item['icontype'] === 'fontawesome') {
+                    $icon=html_writer::tag('i','',
+                        ['class' => 'wds icon fa '.$item['icon'],'aria-hidden' => 'true']
+                    );
+                } else {
+                    $icon=$item['icon'];
+                }
+
+                // Create the links.
+                $link = html_writer::link($item['url'], $icon . $item['text'], ['class' => 'wds sportsgrades menu-link']);
+
+                // Add the links to list items.
+                $listitems .= html_writer::tag('li', $link, ['class' => 'wds menu-item']);
+            }
         }
+
+        // Create a button to access the management page.
+        if ($manageraccess) {
+
+            // Loop through the manager items.
+            foreach ($manageritems as $item) {
+                if ($item['icontype'] === 'fontawesome') {
+                    $icon=html_writer::tag('i','',
+                        ['class' => 'wds icon fa '.$item['icon'],'aria-hidden' => 'true']
+                    );
+                } else {
+                    $icon=$item['icon'];
+                }
+
+                // Create the links.
+                $link = html_writer::link($item['url'], $icon . $item['text'], ['class' => 'wds sportsgrades menu-link']);
+
+                // Add the links to list items.
+                $listitems .= html_writer::tag('li', $link, ['class' => 'wds menu-item']);
+            }
+        }
+
+        // Return all the links.
+        $this->content->text = html_writer::tag('ul', $listitems, ['class' => 'wds sportsgrades menu-list']);
 
         return $this->content;
     }
@@ -99,41 +168,5 @@ class block_wds_sportsgrades extends block_base {
             'my' => true,
             'admin' => true,
         ];
-    }
-
-    /**
-     * Check if the current user has access to this block.
-     * @return bool
-     */
-    protected function has_access() {
-        global $USER, $DB;
-
-        // Hardcoded access for now as requested.
-        $allowed_users = [
-            'rrusso33',
-        ];
-
-        // Check if current user is in the allowed list.
-        if (in_array($USER->username, $allowed_users)) {
-            return true;
-        }
-
-        // Alternative: Check for capabilities.
-        if (has_capability('block/wds_sportsgrades:view', context_system::instance())) {
-            return true;
-        }
-
-        // Check if the user has the manageaccess capability.
-        if (has_capability('block/wds_sportsgrades:manageaccess', context_system::instance())) {
-            return true;
-        }
-
-        // Check if the user is in the access table.
-        if ($DB->record_exists('block_wds_sportsgrades_access', ['userid' => $USER->id])) {
-            return true;
-        }
-
-        return false;
-
     }
 }
