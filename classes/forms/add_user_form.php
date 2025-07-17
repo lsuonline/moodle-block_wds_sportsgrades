@@ -53,7 +53,7 @@ class add_user_form extends moodleform {
 
         // Loop through the potential users to build the form.
         foreach ($pusers as $puser) {
-            $useroptions[$puser->id] = fullname($puser);
+            $useroptions[$puser->id] = fullname($puser) . ' (' . $puser->username . ')';
         }
 
         // Add the element.
@@ -74,6 +74,7 @@ class add_user_form extends moodleform {
         // Add the sport selector.
         $mform->addElement('select', 'sportid', get_string('sport', 'block_wds_sportsgrades'), $sportoptions);
 
+        // Add the action buttons for adding.
         $this->add_action_buttons(true, get_string('adduser', 'block_wds_sportsgrades'));
 
         $mform->addElement('header', 'removeuserheader', get_string('removeuser', 'block_wds_sportsgrades'));
@@ -91,7 +92,7 @@ class add_user_form extends moodleform {
             // Group users by sport.
             $sportsgroups = [];
             foreach ($eusers as $euser) {
-                $sportname = $euser->sportname == '' ? 'All Sports' : $euser->sportname;
+                $sportname = $euser->sportname;
                 if (!isset($sportsgroups[$sportname])) {
                     $sportsgroups[$sportname] = [];
                 }
@@ -100,34 +101,48 @@ class add_user_form extends moodleform {
 
             // Create a table for each sport.
             foreach ($sportsgroups as $sportname => $sportusers) {
-            // Add a header for the sport.
 
+                // Add a header for the sport.
                 $mform->addElement('header', $sportname, $sportname);
 
+                // Instantiate the table for this sport.
                 $table = new html_table();
+
+                // Give it a class.
                 $table->attributes = ['class' => 'generaltable sportstable'];
 
+                // Build out the head.
                 $table->head = [
                     get_string('user'),
                     get_string('sport', 'block_wds_sportsgrades'),
                     get_string('action'),
                 ];
 
+                // Loop through the users for this sport.
                 foreach ($sportusers as $euser) {
-                    $removeurl = new moodle_url('/blocks/wds_sportsgrades/admin.php', ['userremove' => $euser->assignid, 'sesskey' => sesskey()]);
+
+                    // Build out the remove url with parms.
+                    $removeurl = new moodle_url('/blocks/wds_sportsgrades/admin.php',
+                        ['userremove' => $euser->assignid, 'sesskey' => sesskey()]);
+
+                    // Build the button.
                     $removebutton = new single_button($removeurl, get_string('remove'), 'post');
+
+                    // Add a calss to the parent div.
                     $removebutton->class = 'sportsbutton';
-   
 
-
+                    // Build the table row.
                     $row = [
-                        fullname($euser),
-                        $euser->sportname == '' ? 'All Sports' : $euser->sportname,
+                        fullname($euser) . ' (' . $euser->username . ')',
+                        $euser->sportname,
                         $OUTPUT->render($removebutton),
                     ];
+
+                    // Add the above row to the table data array.
                     $table->data[] = $row;
                 }
 
+                // Add the table.
                 $mform->addElement('html', html_writer::table($table));
             }
         }
