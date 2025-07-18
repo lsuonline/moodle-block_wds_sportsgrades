@@ -33,6 +33,12 @@ defined('MOODLE_INTERNAL') || die();
 function xmldb_block_wds_sportsgrades_install() {
     global $DB;
 
+    // Check if required table exists before proceeding.
+    if (!table_enrol_sports_mentors_exists()) {
+        mtrace('Required table enrol_sports_mentors does not exist. Skipping record cloning.');
+        return true;
+    }
+
     try {
 
         // Execute the query to fetch records.
@@ -59,6 +65,20 @@ function xmldb_block_wds_sportsgrades_install() {
         mtrace('Error during installation: ' . $e->getMessage());
         return false;
     }
+}
+
+/**
+ * Check if the enrol_sports_mentors table exists.
+ *
+ * @return bool True if table exists, false otherwise
+ */
+function table_enrol_sports_mentors_exists() {
+    global $DB;
+
+    $dbman = $DB->get_manager();
+    $table = new xmldb_table('enrol_sports_mentors');
+
+    return $dbman->table_exists($table);
 }
 
 /**
