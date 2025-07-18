@@ -25,9 +25,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025051200;
+$plugin->version   = 2025071800;
 $plugin->requires  = 2023100900;
 $plugin->component = 'block_wds_sportsgrades';
-$plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.1.0';
+$plugin->maturity  = MATURITY_STABLE;
+$plugin->release   = '1.0.0';
 $plugin->dependencies = ['enrol_workdaystudent' => 2025021700];

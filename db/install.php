@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Install script to clone data from UES sports grades viewer.
  *
- * @return bool
+ * @return @bool
  */
 function xmldb_block_wds_sportsgrades_install() {
     global $DB;
@@ -64,46 +64,46 @@ function xmldb_block_wds_sportsgrades_install() {
 /**
  * Fetch sport mentor records using the provided SQL query.
  *
- * @return array Array of records
+ * @return @array Array of records
  */
 function fetch_sport_mentor_records() {
     global $DB;
 
     // Build the SQL. THIS IS HARDCODED TO ME!!!
-    $sql = "SELECT u.id AS userid,
-                   s.id AS sportid,
-                   UNIX_TIMESTAMP() AS timecreated,
-                   UNIX_TIMESTAMP() AS timemodified,
-                   30567 AS createdby,
-                   30567 AS modifiedby,
-                   u.firstname,
-                   u.lastname,
-                   u.username,
-                   s.code,
-                   s.name,
-                   FROM_UNIXTIME(u.lastaccess) AS lastaccess
-            FROM {enrol_wds_sport} s
-            INNER JOIN {enrol_sports_mentors} sm1 ON sm1.path = s.code
-            INNER JOIN {user} u ON u.id = sm1.userid
-            ORDER BY s.id ASC, sm1.userid ASC";
+    $sql = "SELECT CONCAT(u.id, '_', s.id) AS uniquer,
+            u.id AS userid,
+            s.id AS sportid,
+            UNIX_TIMESTAMP() AS timecreated,
+            UNIX_TIMESTAMP() AS timemodified,
+            30567 AS createdby,
+            30567 AS modifiedby,
+            u.firstname,
+            u.lastname,
+            u.username,
+            s.code,
+            s.name,
+            FROM_UNIXTIME(u.lastaccess) AS lastaccess
+        FROM {enrol_wds_sport} s
+        INNER JOIN {enrol_sports_mentors} sm1 ON sm1.path = s.code
+        INNER JOIN {user} u ON u.id = sm1.userid
+        ORDER BY s.id ASC, sm1.userid ASC";
 
-    return $DB->get_records_sql($sql);
+    $data = $DB->get_records_sql($sql);
+
+    return $data;
 }
 
 /**
  * Insert sport mentor records into target table.
  *
- * @param array $records Array of records to insert
- * @return bool Success status
+ * @param @array $records Array of records to insert
+ * @return @bool Success status
  */
 function insert_sport_mentor_records($records) {
     global $DB;
 
     // Set the table.
     $table = 'block_wds_sportsgrades_access';
-
-    // let's be super extra safe here.
-    $transaction = $DB->start_delegated_transaction();
 
     try {
 
@@ -113,17 +113,22 @@ function insert_sport_mentor_records($records) {
             // Prepare record for insertion.
             $insertrecord = prepare_record_for_insertion($record);
 
+            // let's be super extra safe here.
+            $transaction = $DB->start_delegated_transaction();
+
             // Insert the record.
             $DB->insert_record($table, $insertrecord);
-        }
 
-        // Comit the transaction when we're done.
-        $transaction->allow_commit();
+            // Commit the transaction when we're done.
+            $transaction->allow_commit();
+        }
 
         return true;
 
     } catch (Exception $e) {
+
         $transaction->rollback($e);
+
         return false;
     }
 }
@@ -131,8 +136,8 @@ function insert_sport_mentor_records($records) {
 /**
  * Prepare record object for database insertion.
  *
- * @param stdClass $record Original record from query
- * @return stdClass Prepared record for insertion
+ * @param @object $record Original record from query
+ * @return @object Prepared record for insertion
  */
 function prepare_record_for_insertion($record) {
 
