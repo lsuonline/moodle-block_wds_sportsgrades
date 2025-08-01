@@ -53,17 +53,18 @@ class block_wds_sportsgrades_search_form extends moodleform {
         // Build out the parm for limiting sport searches.
         $sportsparms = ['userid' => $USER->id];
 
-        // Get list of sports from the database
+        // Get list of sports from the database.
         $sportsql = 'SELECT sa.id AS said, COALESCE(s.id, 0) AS id, s.code, COALESCE(s.name, "All Sports") AS name
             FROM {block_wds_sportsgrades_access} sa
             LEFT JOIN {enrol_wds_sport} s ON sa.sportid = s.id
             WHERE sa.userid = :userid
             GROUP BY name ORDER BY name ASC';
 
+        // Pre add this so admins do not error out.
+        $sport_options = ['' => get_string('search_sport_all', 'block_wds_sportsgrades')];
+
         // Get the sports.
         $sports = $DB->get_records_sql($sportsql, $sportsparms);
-
-//        $sport_options = ['' => get_string('search_sport_all', 'block_wds_sportsgrades')];
 
         // Loop through the sports.
         foreach ($sports as $sport) {
