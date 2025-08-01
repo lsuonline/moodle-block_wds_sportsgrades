@@ -85,7 +85,7 @@ class search {
                     GROUP_CONCAT(CASE WHEN stumeta.datatype = 'Classification' THEN stumeta.data ELSE NULL END) AS classification
                 FROM {enrol_wds_students_meta} stumeta
                 INNER JOIN {enrol_wds_periods} per2
-                     ON per2.academic_period_id = stumeta.academic_period_id
+                    ON per2.academic_period_id = stumeta.academic_period_id
                     AND per2.start_date <= UNIX_TIMESTAMP()
                     AND per2.end_date >= UNIX_TIMESTAMP()
                 JOIN (
@@ -186,6 +186,7 @@ class search {
         $sql = $sqlselect . $sqlfrom . $sqlwhere . $sqlorder;
 
         try {
+            // Get the students.
             $students = $DB->get_records_sql($sql, $parmssql);
 
             // Process results to add sports information.
@@ -228,7 +229,7 @@ class search {
             INNER JOIN {enrol_wds_students_meta} sm
                 ON sm.data = s.code
                 AND sm.datatype = 'Athletic_Team_ID'
-            INNER JOIN mdl_enrol_wds_periods per
+            INNER JOIN {enrol_wds_periods} per
                 ON per.academic_period_id = sm.academic_period_id
                 AND per.start_date <= UNIX_TIMESTAMP()
                 AND per.end_date >= UNIX_TIMESTAMP()
@@ -260,14 +261,18 @@ class search {
     public static function get_user_access($userid) {
         global $DB, $USER;
 
+        // Build the access array of arrays.
         $access = [
             'sports' => [],
             'student_ids' => [],
             'all_students' => false
         ];
 
-        // Admin can access all students.
-        if (is_siteadmin()) {
+        // Get our settings.
+        $s = get_config('block_wds_sportsgrades');
+
+        // Admin can access all students if config allows.
+        if (is_siteadmin() && $s->adminaccessall) {
             $access['all_students'] = true;
             return $access;
         }

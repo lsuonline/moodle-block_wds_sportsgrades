@@ -97,8 +97,8 @@ class block_wds_sportsgrades_search_form extends moodleform {
 
         // Build out the SQL to get classifications.
         $csql = "SELECT sm.data
-            FROM mdl_enrol_wds_students_meta sm
-            INNER JOIN mdl_enrol_wds_students_meta sm2
+            FROM {enrol_wds_students_meta} sm
+            INNER JOIN {enrol_wds_students_meta} sm2
                 ON sm.studentid = sm2.studentid
                 AND sm2.datatype = 'Athletic_Team_ID'
             WHERE sm.datatype = 'Classification'
