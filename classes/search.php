@@ -185,11 +185,6 @@ class search {
         // Execute the query.
         $sql = $sqlselect . $sqlfrom . $sqlwhere . $sqlorder;
 
-echo"<br><br><br><pre>";
-var_dump($sql);
-var_dump($parmssql);
-echo"</pre>";
-
         try {
             $students = $DB->get_records_sql($sql, $parmssql);
 

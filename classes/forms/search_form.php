@@ -102,7 +102,21 @@ class block_wds_sportsgrades_search_form extends moodleform {
                 ON sm.studentid = sm2.studentid
                 AND sm2.datatype = 'Athletic_Team_ID'
             WHERE sm.datatype = 'Classification'
-            GROUP BY sm.data";
+            GROUP BY sm.data
+            ORDER BY FIELD(
+                RIGHT(sm.data, LENGTH(sm.data) - INSTR(sm.data, ' ')),
+                'Freshman',
+                'First Year',
+                '1L',
+                'Sophomore',
+                'Second Year',
+                '2L',
+                'Junior',
+                'Third Year',
+                '3L',
+                'Senior',
+                'Fourth Year',
+                'Graduate')";
 
         // Get the list of classifications.
         $cobj = $DB->get_records_sql($csql, null);
